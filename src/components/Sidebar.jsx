@@ -26,7 +26,7 @@ const Sidebar = ({ sideBar }) => {
                   <HouseFill size={25} /> Home
                 </div>
               </Link>
-              <Link className="link nav-item" to="/upload/product">
+              <Link className="link nav-item" to="/product-upload">
                 <div className="text-primary list mb-4">
                   <CartPlus size={25} /> Product Upload
                 </div>

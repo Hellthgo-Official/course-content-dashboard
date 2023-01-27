@@ -95,7 +95,7 @@ function SingleUpload() {
                   </Button>
                 </div>
                 <div className="col-6 mt-4">
-                  <Button size="lg" className="btn btn-primary " disabled>
+                  <Button size="lg" className="btn btn-primary border-default " disabled>
                     Upload Course
                   </Button>
                 </div>
