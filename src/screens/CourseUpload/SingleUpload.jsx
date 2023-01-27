@@ -12,8 +12,9 @@ import imageSvg from '../../assets/images/image.svg';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import { ImageFill } from 'react-bootstrap-icons';
 import CourseSection from './CourseSection';
-import { useState } from 'react';
+import { useState, createContext } from 'react';
 
+export const ImgContext = createContext([])
 function SingleUpload() {
   const [sections, setSections] = useState([0]);
 
@@ -21,7 +22,10 @@ function SingleUpload() {
     setSections([...sections, sections]);
   };
 
+ const [files, setFiles] = useState()
+ console.log(files)
   return (
+    <ImgContext.Provider value={{files, setFiles}} >
     <Container className="">
       <div className="text-primary my-5 d-flex ">
         <Image
@@ -107,6 +111,7 @@ function SingleUpload() {
         </Card>
       </div>
     </Container>
+    </ImgContext.Provider>
   );
 }
 

@@ -9,10 +9,16 @@ import {
 } from "react-bootstrap";
 import productUpload from "../assets/images/product-upload.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
+<<<<<<< HEAD
 import ImageUploader from "../components/ImageUploader";
 import { useState } from "react";
 import Moralis from "moralis";
+=======
+import ImageUpload from "../components/ImageUpload";
+import { useState, createContext } from "react";
+>>>>>>> refs/remotes/origin/main
 
+export const ImageContext = createContext([])
 function ProductUpload() {
   const [productName, setProductName] = useState();
   const [price, setPrice] = useState();
@@ -20,6 +26,7 @@ function ProductUpload() {
   const [productUri, setProductUri] = useState();
   const [productImages, setProductImages] = useState([]);
 
+<<<<<<< HEAD
   // const { saveFile, moralisFile } = useMoralisFile();
   const runMoralis = async () => {
     await Moralis.start({
@@ -55,8 +62,14 @@ function ProductUpload() {
 
     console.log(response.toJSON());
   };
+=======
+
+  const [files, setFiles] = useState()
+  console.log(files)
+>>>>>>> refs/remotes/origin/main
 
   return (
+    <ImageContext.Provider value={{files, setFiles}} >
     <Container className="">
       <div className="text-primary my-5 d-flex ">
         <Image
@@ -117,7 +130,7 @@ function ProductUpload() {
                 <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
                   <Form.Label>Product Images</Form.Label>
                   <div className="bg-white p-3">
-                    <ImageUploader />
+                    <ImageUpload />
                   </div>
                 </Form.Group>
                 <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
@@ -150,6 +163,7 @@ function ProductUpload() {
         </Card>
       </div>
     </Container>
+    </ImageContext.Provider>
   );
 }
 
