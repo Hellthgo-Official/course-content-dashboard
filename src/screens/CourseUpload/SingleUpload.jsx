@@ -45,13 +45,15 @@ function SingleUpload() {
                     className="border-default bg-primary"
                   />
                 </Form.Group>
-                <Form.Group className="mb-3 col-3" controlId="formBasicEmail">
-                  <Form.Label>Pricing</Form.Label>
+                <Form.Group className="mb-3 col-3" style={{marginTop:"30px"}} controlId="formBasicEmail">
+                  {/* <Form.Label>Pricing</Form.Label> */}
                   <BootstrapSwitchButton
                     checked={true}
                     width={150}
                     onlabel="Free"
                     offlabel="Paid"
+                    onstyle="success"
+                    style={{color:"white"}}
                   />
                 </Form.Group>
                 <Form.Group className="mb-3 col-3" controlId="formBasicEmail">
