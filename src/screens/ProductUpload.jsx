@@ -11,6 +11,7 @@ import productUpload from "../assets/images/product-upload.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import ImageUploader from "../components/ImageUploader";
 import { useState } from "react";
+import Moralis from "moralis";
 
 function ProductUpload() {
   const [productName, setProductName] = useState();
@@ -18,6 +19,42 @@ function ProductUpload() {
   const [productDescription, setProductDescription] = useState();
   const [productUri, setProductUri] = useState();
   const [productImages, setProductImages] = useState([]);
+
+  // const { saveFile, moralisFile } = useMoralisFile();
+  const runMoralis = async () => {
+    await Moralis.start({
+      apiKey: "ZwLmrB0MLyLCcDP89Z5MJ9e81Xm4kJ0jiNhhyDDwrSCXuLGYACXRXVSPy1PB0ckb"
+    });
+    const abi = [
+      {
+        path: "metadata.json",
+        content: {
+          name: "NFT Name",
+          description: "This will be the NFT description.",
+          image:
+            "ipfs://bafybeihewi4brhhmjqvquwdqnlzhnamfh26txwmw2fe4nfswfckpthowna/brandResoursesMage2.svg",
+          attributes: [
+            {
+              trait_type: "Base",
+              value: "Starfish"
+            },
+            {
+              trait_type: "Eyes",
+              value: "Big"
+            },
+            {
+              trait_type: "Mouth",
+              value: "Surprised"
+            }
+          ]
+        }
+      }
+    ];
+
+    const response = await Moralis.EvmApi.ipfs.uploadFolder({ abi });
+
+    console.log(response.toJSON());
+  };
 
   return (
     <Container className="">
@@ -100,9 +137,10 @@ function ProductUpload() {
                 <Button
                   size="lg"
                   className="border-default"
-                  onClick={() =>
-                    console.log([productName, price, productDescription])
-                  }
+                  onClick={async () => {
+                    console.log([productName, price, productDescription]);
+                    await runMoralis();
+                  }}
                 >
                   Upload Product
                 </Button>

@@ -1,10 +1,11 @@
-import { BrowserRouter } from 'react-router-dom';
-import './App.css';
+import { BrowserRouter } from "react-router-dom";
+import "./App.css";
 
-import { useState } from 'react';
-import { Content, Sidebar, Footer, Header } from './components/index';
+import { useState } from "react";
+import { Content, Sidebar, Footer, Header } from "./components/index";
 /* import Profile from '../../profile/Profile';
  */
+
 const App = () => {
   const [sideBar, setSideBar] = useState(true);
 
@@ -14,7 +15,7 @@ const App = () => {
     } else {
       setSideBar(true);
     }
-    console.log('clicked');
+    console.log("clicked");
   }
 
   return (
@@ -23,7 +24,7 @@ const App = () => {
         <Sidebar sideBar={sideBar} />
         <div className="d-flex flex-column min-vh-100">
           <Header openSideBar={toggleSideBar} />
-          <div className={sideBar ? 'content-sidebar ' : 'content'}>
+          <div className={sideBar ? "content-sidebar " : "content"}>
             <Content />
           </div>
         </div>
