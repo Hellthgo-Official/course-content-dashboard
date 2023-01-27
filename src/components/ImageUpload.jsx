@@ -3,14 +3,14 @@ import { Button, Image } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
 import uploadSvg from "./../assets/images/uploader.svg";
 
-import { ImgContext } from "../screens/CourseUpload/SingleUpload";
+import { ImageContext } from "../screens/ProductUpload";
 
 
 let binaryStr;
 let filess
 
-function ImageUploader({ open }) {
-  const {files, setFiles} = useContext(ImgContext)
+function ImageUpload({ open }) {
+  const {files, setFiles} = useContext(ImageContext)
   const onDrop = useCallback((acceptedFiles) => {
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
@@ -47,4 +47,4 @@ function ImageUploader({ open }) {
   );
 }
 
-export default ImageUploader;
+export default ImageUpload;
