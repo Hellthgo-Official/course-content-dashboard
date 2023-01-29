@@ -28,6 +28,8 @@ const { keyStores, connect, WalletConnection, ConnectedWalletAccount, utils } =
   nearAPI;
 const myKeyStore = new keyStores.BrowserLocalStorageKeyStore();
 
+export let accountt;
+
 const Header = ({ openSideBar }) => {
   const [signedIn, setSignedIn] = useState("connect wallet");
   const [accountBalance, setAccountBalance] = useState(undefined);
@@ -41,6 +43,7 @@ const Header = ({ openSideBar }) => {
       const account = await nearConnection.account(
         walletConnection.getAccountId()
       );
+      accountt = account;
       console.log(
         utils.format.formatNearAmount(
           (await account.getAccountBalance()).available

@@ -15,16 +15,6 @@ function CourseSection() {
             className="border-default bg-primary"
           />
         </Form.Group>
-        {/* <Form.Group className="mb-3 col-4" controlId="formBasicEmail">
-          <Form.Label className="text-end">
-            Type of Learning Material
-          </Form.Label>
-          <div className="d-flex">
-            <Form.Select className="border-default bg-primary">
-              <option>Images</option>
-            </Form.Select>
-          </div>
-        </Form.Group> */}
 
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Learning Images for Topic 1</Form.Label>

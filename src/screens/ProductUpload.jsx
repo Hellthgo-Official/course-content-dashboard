@@ -136,8 +136,6 @@ function ProductUpload() {
                     size="lg"
                     className="border-default"
                     onClick={async () => {
-                      // const response = axios.post("https://healthgo-v1.com/ipfs/upload-product-to-ipfs", {image1: image1, image2: image2, image3: image3, description: productDescription})
-                      // await assignFiles();
                       console.log("pressed");
                       const ipfs = await axios
                         .post(
