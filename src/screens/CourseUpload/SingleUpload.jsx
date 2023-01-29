@@ -21,10 +21,27 @@ import axios from "axios";
 import { useAlert } from "react-alert";
 
 import * as nearAPI from "near-api-js";
-const { keyStores, connect, WalletConnection, ConnectedWalletAccount, utils } =
-  nearAPI;
+import { accountt } from "../../components/header/Header";
 
-// const { utils } = NearApi;
+const {
+  keyStores,
+  connect,
+  WalletConnection,
+  ConnectedWalletAccount,
+  utils,
+  Contract
+} = nearAPI;
+
+const contract = new Contract(
+  accountt, // the account object that is connecting
+  "healthgo-conrse.near",
+  {
+    // name of contract you're connecting to
+    viewMethods: ["read_roducts"], // view methods do not change state but usually return a value
+    changeMethods: ["create_product"] // change methods modify state
+  }
+);
+
 export const ImgContext = createContext([]);
 
 function SingleUpload() {
