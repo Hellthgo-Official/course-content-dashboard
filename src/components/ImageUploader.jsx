@@ -1,19 +1,27 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { Button, Image } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
 import uploadSvg from "./../assets/images/uploader.svg";
+import { encode, decode } from "base64-arraybuffer";
 
 import { ImgContext } from "../screens/CourseUpload/SingleUpload";
 
-
 let binaryStr;
-let filess
+let filess;
 
 function ImageUploader({ open }) {
-  const {files, setFiles} = useContext(ImgContext)
-  const onDrop = useCallback((acceptedFiles) => {
+  const { files, setFiles } = useContext(ImgContext);
+  const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
+    // setFiles(
+    //   acceptedFiles.map((file) =>
+    //     Object.assign(file, {
+    //       preview: URL.createObjectURL(file)
+    //     })
+    //   )
+    // );
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
+      // setFiles([...files, file]);
       filess = acceptedFiles.map((file) => (
         <li key={file.path}>
           {file.path} - {file.size} bytes
@@ -23,13 +31,19 @@ function ImageUploader({ open }) {
       reader.onerror = () => console.log("file reading has failed");
       reader.onload = () => {
         // Do whatever you want with the file contents
+        // setFiles((prev) => [...prev, reader.result]);
+        setFiles(reader.result);
+        URL.revokeObjectURL(file.preview);
         binaryStr = reader.result;
-        setFiles([binaryStr]);
-
+        // console.log(acceptedFiles);
       };
-      reader.readAsArrayBuffer(file);
+      reader.readAsDataURL(file);
     });
-  }, [setFiles]);
+  }, []);
+  useEffect(() => {
+    console.log("file uploaded");
+  }, [files]);
+
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   console.log(files);

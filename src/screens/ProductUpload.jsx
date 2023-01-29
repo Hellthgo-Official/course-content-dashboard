@@ -7,162 +7,164 @@ import {
   Image,
   Row
 } from "react-bootstrap";
+import Alert from "react-bootstrap/Alert";
 import productUpload from "../assets/images/product-upload.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
-<<<<<<< HEAD
-import ImageUploader from "../components/ImageUploader";
-import { useState } from "react";
-import Moralis from "moralis";
-=======
 import ImageUpload from "../components/ImageUpload";
-import { useState, createContext } from "react";
->>>>>>> refs/remotes/origin/main
+import { useState, createContext, useEffect } from "react";
+import { encode, decode } from "base64-arraybuffer";
 
-export const ImageContext = createContext([])
+import resizer from "image-resizer-js";
+
+import { useAlert } from "react-alert";
+
+import axios from "axios";
+
+export const ImageContext = createContext([]);
 function ProductUpload() {
   const [productName, setProductName] = useState();
   const [price, setPrice] = useState();
+  const [image1, setImage1] = useState();
+  const [image2, setImage2] = useState();
+  const [image3, setImage3] = useState();
   const [productDescription, setProductDescription] = useState();
   const [productUri, setProductUri] = useState();
   const [productImages, setProductImages] = useState([]);
 
-<<<<<<< HEAD
-  // const { saveFile, moralisFile } = useMoralisFile();
-  const runMoralis = async () => {
-    await Moralis.start({
-      apiKey: "ZwLmrB0MLyLCcDP89Z5MJ9e81Xm4kJ0jiNhhyDDwrSCXuLGYACXRXVSPy1PB0ckb"
-    });
-    const abi = [
-      {
-        path: "metadata.json",
-        content: {
-          name: "NFT Name",
-          description: "This will be the NFT description.",
-          image:
-            "ipfs://bafybeihewi4brhhmjqvquwdqnlzhnamfh26txwmw2fe4nfswfckpthowna/brandResoursesMage2.svg",
-          attributes: [
-            {
-              trait_type: "Base",
-              value: "Starfish"
-            },
-            {
-              trait_type: "Eyes",
-              value: "Big"
-            },
-            {
-              trait_type: "Mouth",
-              value: "Surprised"
-            }
-          ]
-        }
-      }
-    ];
+  const [files, setFiles] = useState([]);
+  console.log(files?.name);
+  // files?.map((e) => console.log(e.name));
+  const assignFiles = async () => {
+    setImage1(files[0]);
+    setImage2(files[1]);
+    setImage3(files[2]);
 
-    const response = await Moralis.EvmApi.ipfs.uploadFolder({ abi });
+    console.log(files[0]);
+    console.log(files[1]);
+    console.log(files[2]);
 
-    console.log(response.toJSON());
+    // console.log(image1);
+    // console.log(image2);
+    // console.log(image3);
   };
-=======
-
-  const [files, setFiles] = useState()
-  console.log(files)
->>>>>>> refs/remotes/origin/main
 
   return (
-    <ImageContext.Provider value={{files, setFiles}} >
-    <Container className="">
-      <div className="text-primary my-5 d-flex ">
-        <Image
-          width={50}
-          src={productUpload}
-          className=""
-          style={{ margin: "0 20px 10px 0" }}
-        />
-        <h3 className="text-primary">Product Upload</h3>
-      </div>
-      <div>
-        <Card className="no-border">
-          <Card.Body className="">
-            <Form>
-              <div className="row d-flex ">
-                <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
-                  <Form.Label>Product Name</Form.Label>
+    <ImageContext.Provider value={{ files, setFiles }}>
+      <Container className="">
+        <div className="text-primary my-5 d-flex ">
+          <Image
+            width={50}
+            src={productUpload}
+            className=""
+            style={{ margin: "0 20px 10px 0" }}
+          />
+          <h3 className="text-primary">Product Upload</h3>
+        </div>
+        <div>
+          <Card className="no-border">
+            <Card.Body className="">
+              <Form>
+                <div className="row d-flex ">
+                  <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
+                    <Form.Label>Product Name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder=""
+                      className="border-default bg-primary"
+                      onChange={(e) => {
+                        setProductName(e.target.value);
+                      }}
+                    />
+                  </Form.Group>
+                  <Form.Group
+                    className="mb-3 col-3"
+                    style={{ marginTop: "30px" }}
+                    controlId="formBasicEmail"
+                  ></Form.Group>
+                  <Form.Group className="mb-3 col-3" controlId="formBasicEmail">
+                    <Form.Label className="text-end">Price in Near</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder=""
+                      className="border-default bg-primary"
+                      onChange={(e) => {
+                        setPrice(e.target.value);
+                      }}
+                    />
+                  </Form.Group>
+                </div>
+
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                  <Form.Label>Product Description</Form.Label>
                   <Form.Control
-                    type="text"
-                    placeholder=""
+                    as="textarea"
+                    rows={3}
                     className="border-default bg-primary"
                     onChange={(e) => {
-                      setProductName(e.target.value);
+                      setProductDescription(e.target.value);
                     }}
                   />
                 </Form.Group>
-                <Form.Group
-                  className="mb-3 col-3"
-                  style={{ marginTop: "30px" }}
-                  controlId="formBasicEmail"
-                ></Form.Group>
-                <Form.Group className="mb-3 col-3" controlId="formBasicEmail">
-                  <Form.Label className="text-end">Price in #</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder=""
-                    className="border-default bg-primary"
-                    onChange={(e) => {
-                      setPrice(e.target.value);
+
+                <div className="warning">
+                  <Alert key={"warning"} variant={"warning"}>
+                    Drag/Select to Upload Three (3) Images at the same time
+                  </Alert>
+                </div>
+                <div className="row d-flex ">
+                  <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
+                    <Form.Label>Product Images</Form.Label>
+                    <div className="bg-white p-3">
+                      <ImageUpload />
+                    </div>
+                  </Form.Group>
+                  {/* <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
+                    <Form.Label>Product URI</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder=""
+                      className="border-default bg-primary"
+                      onChange={(e) => {
+                        setProductUri(e.target.value);
+                      }}
+                    />
+                  </Form.Group> */}
+                </div>
+
+                <div className="mt-4">
+                  <Button
+                    size="lg"
+                    className="border-default"
+                    onClick={async () => {
+                      // const response = axios.post("https://healthgo-v1.com/ipfs/upload-product-to-ipfs", {image1: image1, image2: image2, image3: image3, description: productDescription})
+                      // await assignFiles();
+                      console.log("pressed");
+                      const ipfs = await axios
+                        .post(
+                          `http://localhost:41816/ipfs/upload-product-to-ipfs`,
+                          {
+                            image1: files[0],
+                            image2: files[1],
+                            image3: files[2],
+                            description: productDescription
+                          }
+                        )
+                        .then((res) => {
+                          console.log(res.data);
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
                     }}
-                  />
-                </Form.Group>
-              </div>
-
-              <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label>Product Description</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  className="border-default bg-primary"
-                  onChange={(e) => {
-                    setProductDescription(e.target.value);
-                  }}
-                />
-              </Form.Group>
-
-              <div className="row d-flex ">
-                <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
-                  <Form.Label>Product Images</Form.Label>
-                  <div className="bg-white p-3">
-                    <ImageUpload />
-                  </div>
-                </Form.Group>
-                <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
-                  <Form.Label>Product URI</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder=""
-                    className="border-default bg-primary"
-                    onChange={(e) => {
-                      setProductUri(e.target.value);
-                    }}
-                  />
-                </Form.Group>
-              </div>
-
-              <div className="mt-4">
-                <Button
-                  size="lg"
-                  className="border-default"
-                  onClick={async () => {
-                    console.log([productName, price, productDescription]);
-                    await runMoralis();
-                  }}
-                >
-                  Upload Product
-                </Button>
-              </div>
-            </Form>
-          </Card.Body>
-        </Card>
-      </div>
-    </Container>
+                  >
+                    Upload Product
+                  </Button>
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
+        </div>
+      </Container>
     </ImageContext.Provider>
   );
 }
