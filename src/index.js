@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "@coreui/coreui/dist/css/coreui.min.css";
+import { Buffer } from "buffer";
+global.Buffer = Buffer;
 
 import { transitions, positions, Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
@@ -10,6 +12,7 @@ import AlertTemplate from "react-alert-template-basic";
 
 import "./index.css";
 import App from "./App";
+
 import reportWebVitals from "./reportWebVitals";
 
 const options = {

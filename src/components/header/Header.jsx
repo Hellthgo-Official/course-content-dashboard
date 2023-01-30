@@ -43,7 +43,7 @@ const Header = ({ openSideBar }) => {
       const account = await nearConnection.account(
         walletConnection.getAccountId()
       );
-      accountt = account;
+
       console.log(
         utils.format.formatNearAmount(
           (await account.getAccountBalance()).available

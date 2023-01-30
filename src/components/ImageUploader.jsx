@@ -46,7 +46,7 @@ function ImageUploader({ open }) {
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-  console.log(files);
+  // console.log(files);
 
   return (
     <div className="container">

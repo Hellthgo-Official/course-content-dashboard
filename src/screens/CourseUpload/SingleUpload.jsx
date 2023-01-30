@@ -1,3 +1,5 @@
+// import * as buffer from 'buffer';
+// (window as any).Buffer = buffer.Buffer;
 import ImageUploader from "../../components/ImageUploader";
 import {
   Alert,
@@ -11,17 +13,18 @@ import {
   Toast
 } from "react-bootstrap";
 import courseUpload from "../../assets/images/course-upload.svg";
+import connectionConfig from "../../ConfigJson";
 import imageSvg from "../../assets/images/image.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import { ImageFill } from "react-bootstrap-icons";
 import CourseSection from "./CourseSection";
-import { useState, createContext } from "react";
+import { useState, createContext, useEffect } from "react";
 import base_url from "../Baseurl";
 import axios from "axios";
 import { useAlert } from "react-alert";
 
 import * as nearAPI from "near-api-js";
-import { accountt } from "../../components/header/Header";
+// import { accountt } from "../../components/header/Header";
 
 const {
   keyStores,
@@ -31,16 +34,6 @@ const {
   utils,
   Contract
 } = nearAPI;
-
-const contract = new Contract(
-  accountt, // the account object that is connecting
-  "healthgo-conrse.near",
-  {
-    // name of contract you're connecting to
-    viewMethods: ["read_roducts"], // view methods do not change state but usually return a value
-    changeMethods: ["create_product"] // change methods modify state
-  }
-);
 
 export const ImgContext = createContext([]);
 
@@ -56,7 +49,64 @@ function SingleUpload() {
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
   const [price, setPrice] = useState();
-  console.log(files);
+  const [productUri, setProductUri] = useState();
+  const [numberOfProducts, setNumberOfProducts] = useState();
+  // console.log(files);
+
+  const signedUser = async () => {
+    const nearConnection = await connect(connectionConfig);
+    const walletConnection = new WalletConnection(nearConnection);
+    // setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
+    console.log(walletConnection.getAccountId());
+    const account = await nearConnection.account(
+      walletConnection.getAccountId()
+    );
+
+    const contract = new Contract(
+      walletConnection.account(), // the account object that is connecting
+      "healthgo-conrse.near",
+      {
+        // name of contract you're connecting to
+        viewMethods: ["read_products"], // view methods do not change state but usually return a value
+        changeMethods: ["create_product"] // change methods modify state
+      }
+    );
+
+    const response = await contract
+      .create_product({
+        name: title,
+        product_uri: productUri,
+        amount_per_unit: price,
+        product_type: "course",
+        init_available_product: "50000"
+      })
+      .then((e) => {
+        console.log(e);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  // signedUser();
+
+  // const Process = async () => {
+  //   const response = await contract
+  //     .create_product({
+  //       args: {
+  //         name: title,
+  //         amount_per_unit: price,
+  //         product_uri: productUri,
+  //         product_type: "course",
+  //         init_available_product: "50000"
+  //       }
+  //     })
+  //     .then((e) => {
+  //       console.log(e.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
 
   return (
     <ImgContext.Provider value={{ files, setFiles }}>
@@ -88,9 +138,20 @@ function SingleUpload() {
                   </Form.Group>
                   <Form.Group
                     className="mb-3 col-3"
-                    style={{ marginTop: "30px" }}
+                    // style={{ marginTop: "30px" }}
                     controlId="formBasicEmail"
                   >
+                    {/* <Form.Label className="text-end">
+                      Amount of products
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder=""
+                      className="border-default bg-primary"
+                      onChange={(e) => {
+                        setNumberOfProducts(e.target.value);
+                      }}
+                    /> */}
                     {/* <Form.Label>Pricing</Form.Label> */}
                     {/* <BootstrapSwitchButton
                       checked={true}
@@ -142,18 +203,6 @@ function SingleUpload() {
                   <br />
                   <h4 className="text-primary">Course Image</h4>
                   <div className="bg-primary p-4 border-default rounded-4 row">
-                    {/* <Form.Group
-                      className="mb-3 col-8"
-                      controlId="formBasicEmail"
-                    >
-                      <Form.Label>Topic 1</Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        className="border-default bg-primary"
-                      />
-                    </Form.Group> */}
-
                     <Form.Group className="mb-3" controlId="formBasicEmail">
                       <Form.Label style={{ fontWeight: "bold", width: "100%" }}>
                         <Alert key={"warning"} variant={"warning"}>
@@ -164,25 +213,10 @@ function SingleUpload() {
                         <ImageUploader />
                       </div>
                     </Form.Group>
-                    {/* <div className="col-4 mt-1">
-                      <Button className="btn btn-default">Add new topic</Button>
-                    </div> */}
                   </div>
                 </div>
 
                 <div className="row">
-                  {/* <div className="col-6 mt-4 d-flex justify-content-around">
-                    <Button
-                      size=""
-                      className="btn btn-default"
-                      onClick={addItem}
-                    >
-                      Add new section
-                    </Button>
-                    <Button size="" className="btn btn-default">
-                      Save changes
-                    </Button>
-                  </div> */}
                   <div className="col-6 mt-4">
                     <Button
                       size="lg"
@@ -212,11 +246,23 @@ function SingleUpload() {
                                 conclusion: summary
                               }
                             )
-                            .then((res) => {
+                            .then(async (res) => {
+                              const responded = res.data.message;
                               console.log(res.data);
+                              setTimeout(() => {
+                                setProductUri(JSON.stringify(responded));
+                                console.log(productUri);
+                              }, 1500);
+                              const response = await signedUser()
+                                .then((final) => {
+                                  console.log("hold on");
+                                })
+                                .catch((error) => {
+                                  console.log("error occured " + error);
+                                });
                             })
                             .catch((err) => {
-                              console.log(err);
+                              console.log("final error" + err);
                             });
                         }
                       }}
