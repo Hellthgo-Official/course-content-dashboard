@@ -49,7 +49,7 @@ function SingleUpload() {
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
   const [price, setPrice] = useState();
-  const [productUri, setProductUri] = useState();
+  let productUri;
   const [numberOfProducts, setNumberOfProducts] = useState();
   // console.log(files);
 
@@ -72,20 +72,13 @@ function SingleUpload() {
       }
     );
 
-    const response = await contract
-      .create_product({
-        name: title,
-        product_uri: productUri,
-        amount_per_unit: price,
-        product_type: "course",
-        init_available_product: "50000"
-      })
-      .then((e) => {
-        console.log(e);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const response = await contract.create_product({
+      name: title,
+      product_uri: productUri,
+      amount_per_unit: price,
+      product_type: "course",
+      init_available_products: "50000"
+    });
   };
   // signedUser();
 
@@ -236,6 +229,12 @@ function SingleUpload() {
                             transition: "scale"
                           });
                         } else {
+                          alert.removeAll();
+                          alert.info("Hang on, it'll just be a while", {
+                            position: "bottom right",
+                            transition: "scale",
+                            timeout: "100000"
+                          });
                           const ipfs = await axios
                             .post(
                               `http://localhost:41816/ipfs/upload-course-to-ipfs`,
@@ -247,21 +246,36 @@ function SingleUpload() {
                               }
                             )
                             .then(async (res) => {
+                              const stringed = JSON.stringify(res.data.message);
                               const responded = res.data.message;
-                              console.log(res.data);
-                              setTimeout(() => {
-                                setProductUri(JSON.stringify(responded));
-                                console.log(productUri);
-                              }, 1500);
-                              const response = await signedUser()
-                                .then((final) => {
-                                  console.log("hold on");
-                                })
-                                .catch((error) => {
-                                  console.log("error occured " + error);
-                                });
+                              productUri = stringed;
+                              alert.removeAll();
+                              alert.info("we're almost there, hang on", {
+                                position: "bottom right",
+                                transition: "scale"
+                              });
+                              console.log(res.data.message);
+
+                              console.log(stringed);
+                              console.log(productUri);
+
+                              console.log("functioning");
+                              setTimeout(async () => {
+                                const response = await signedUser()
+                                  .then((final) => {
+                                    console.log("hold on");
+                                  })
+                                  .catch((error) => {
+                                    console.log("error occured " + error);
+                                  });
+                              }, 2000);
                             })
                             .catch((err) => {
+                              alert.removeAll();
+                              alert.error("Something went wrong", {
+                                position: "bottom right",
+                                transition: "scale"
+                              });
                               console.log("final error" + err);
                             });
                         }
