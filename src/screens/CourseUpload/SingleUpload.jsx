@@ -236,15 +236,12 @@ function SingleUpload() {
                             timeout: "100000"
                           });
                           const ipfs = await axios
-                            .post(
-                              `http://localhost:41816/ipfs/upload-course-to-ipfs`,
-                              {
-                                image1: files,
-                                title: title,
-                                body: body,
-                                conclusion: summary
-                              }
-                            )
+                            .post(`${base_url}/ipfs/upload-course-to-ipfs`, {
+                              image1: files,
+                              title: title,
+                              body: body,
+                              conclusion: summary
+                            })
                             .then(async (res) => {
                               const stringed = JSON.stringify(res.data.message);
                               const responded = res.data.message;

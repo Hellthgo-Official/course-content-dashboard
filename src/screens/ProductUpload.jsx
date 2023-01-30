@@ -15,6 +15,7 @@ import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import ImageUpload from "../components/ImageUpload";
 import { useState, createContext, useEffect } from "react";
 import { encode, decode } from "base64-arraybuffer";
+import base_url from "./Baseurl";
 
 import resizer from "image-resizer-js";
 
@@ -210,15 +211,12 @@ function ProductUpload() {
                           timeout: "100000"
                         });
                         const ipfs = await axios
-                          .post(
-                            `http://localhost:41816/ipfs/upload-product-to-ipfs`,
-                            {
-                              image1: image1,
-                              image2: image2,
-                              image3: image3,
-                              description: productDescription
-                            }
-                          )
+                          .post(`${base_url}/ipfs/upload-product-to-ipfs`, {
+                            image1: image1,
+                            image2: image2,
+                            image3: image3,
+                            description: productDescription
+                          })
                           .then(async (res) => {
                             const stringed = JSON.stringify(res.data.message);
                             const responded = res.data.message;
