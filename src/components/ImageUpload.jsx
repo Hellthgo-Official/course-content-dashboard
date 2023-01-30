@@ -34,7 +34,7 @@ function ImageUpload({ open }) {
         // setFiles(reader.result);
         URL.revokeObjectURL(file.preview);
         binaryStr = reader.result;
-        // console.log(acceptedFiles);
+        console.log(acceptedFiles);
       };
       reader.readAsDataURL(file);
     });

@@ -8,7 +8,9 @@ import {
   Row
 } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
+// import { useAlert } from "react-alert";
 import productUpload from "../assets/images/product-upload.svg";
+import connectionConfig from "../ConfigJson";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import ImageUpload from "../components/ImageUpload";
 import { useState, createContext, useEffect } from "react";
@@ -17,19 +19,30 @@ import { encode, decode } from "base64-arraybuffer";
 import resizer from "image-resizer-js";
 
 import { useAlert } from "react-alert";
+import * as nearAPI from "near-api-js";
+
+const {
+  keyStores,
+  connect,
+  WalletConnection,
+  ConnectedWalletAccount,
+  utils,
+  Contract
+} = nearAPI;
 
 import axios from "axios";
 
 export const ImageContext = createContext([]);
 function ProductUpload() {
+  const alert = useAlert();
   const [productName, setProductName] = useState();
   const [price, setPrice] = useState();
   const [image1, setImage1] = useState();
   const [image2, setImage2] = useState();
   const [image3, setImage3] = useState();
   const [productDescription, setProductDescription] = useState();
-  const [productUri, setProductUri] = useState();
-  const [productImages, setProductImages] = useState([]);
+  let productUri;
+  const [productAmount, setProductAmount] = useState();
 
   const [files, setFiles] = useState([]);
   console.log(files?.name);
@@ -39,13 +52,42 @@ function ProductUpload() {
     setImage2(files[1]);
     setImage3(files[2]);
 
-    console.log(files[0]);
-    console.log(files[1]);
-    console.log(files[2]);
+    // console.log(files[0]);
+    // console.log(files[1]);
+    // console.log(files[2]);
+  };
 
-    // console.log(image1);
-    // console.log(image2);
-    // console.log(image3);
+  useEffect(() => {
+    console.log(files);
+    assignFiles();
+  }, files);
+
+  const signedUser = async () => {
+    const nearConnection = await connect(connectionConfig);
+    const walletConnection = new WalletConnection(nearConnection);
+    // setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
+    console.log(walletConnection.getAccountId());
+    const account = await nearConnection.account(
+      walletConnection.getAccountId()
+    );
+
+    const contract = new Contract(
+      walletConnection.account(), // the account object that is connecting
+      "healthgo-prodnct.near",
+      {
+        // name of contract you're connecting to
+        viewMethods: ["read_products"], // view methods do not change state but usually return a value
+        changeMethods: ["create_product"] // change methods modify state
+      }
+    );
+
+    const response = await contract.create_product({
+      name: productName,
+      product_uri: productUri,
+      amount_per_unit: price,
+      product_type: "product",
+      init_available_products: productAmount
+    });
   };
 
   return (
@@ -78,9 +120,21 @@ function ProductUpload() {
                   </Form.Group>
                   <Form.Group
                     className="mb-3 col-3"
-                    style={{ marginTop: "30px" }}
+                    // style={{ marginTop: "30px" }}
                     controlId="formBasicEmail"
-                  ></Form.Group>
+                  >
+                    <Form.Label className="text-end">
+                      Amount of products
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder=""
+                      className="border-default bg-primary"
+                      onChange={(e) => {
+                        setProductAmount(e.target.value);
+                      }}
+                    />
+                  </Form.Group>
                   <Form.Group className="mb-3 col-3" controlId="formBasicEmail">
                     <Form.Label className="text-end">Price in Near</Form.Label>
                     <Form.Control
@@ -88,7 +142,7 @@ function ProductUpload() {
                       placeholder=""
                       className="border-default bg-primary"
                       onChange={(e) => {
-                        setPrice(e.target.value);
+                        setPrice(utils.format.parseNearAmount(e.target.value));
                       }}
                     />
                   </Form.Group>
@@ -137,22 +191,68 @@ function ProductUpload() {
                     className="border-default"
                     onClick={async () => {
                       console.log("pressed");
-                      const ipfs = await axios
-                        .post(
-                          `http://localhost:41816/ipfs/upload-product-to-ipfs`,
-                          {
-                            image1: files[0],
-                            image2: files[1],
-                            image3: files[2],
-                            description: productDescription
-                          }
-                        )
-                        .then((res) => {
-                          console.log(res.data);
-                        })
-                        .catch((err) => {
-                          console.log(err);
+                      if (
+                        productName === undefined ||
+                        files === [] ||
+                        productDescription === undefined ||
+                        price === undefined ||
+                        productAmount === undefined
+                      ) {
+                        alert.error("please fill all fields", {
+                          position: "bottom right",
+                          transition: "scale"
                         });
+                      } else {
+                        alert.removeAll();
+                        alert.info("Hang on, it'll just be a while", {
+                          position: "bottom right",
+                          transition: "scale",
+                          timeout: "100000"
+                        });
+                        const ipfs = await axios
+                          .post(
+                            `http://localhost:41816/ipfs/upload-product-to-ipfs`,
+                            {
+                              image1: image1,
+                              image2: image2,
+                              image3: image3,
+                              description: productDescription
+                            }
+                          )
+                          .then(async (res) => {
+                            const stringed = JSON.stringify(res.data.message);
+                            const responded = res.data.message;
+                            productUri = stringed;
+                            alert.removeAll();
+                            alert.info("we're almost there, hang on", {
+                              position: "bottom right",
+                              transition: "scale"
+                            });
+                            console.log(res.data.message);
+
+                            console.log(stringed);
+                            console.log(productUri);
+
+                            console.log("functioning");
+                            setTimeout(async () => {
+                              const response = await signedUser()
+                                .then((final) => {
+                                  console.log("hold on");
+                                })
+                                .catch((error) => {
+                                  console.log("error occured " + error);
+                                });
+                            }, 2000);
+                          })
+                          .catch((err) => {
+                            alert.removeAll();
+                            alert.error("Something went wrong", {
+                              position: "bottom right",
+                              transition: "scale"
+                            });
+                            console.log("final error" + err);
+                          });
+                      }
                     }}
                   >
                     Upload Product
