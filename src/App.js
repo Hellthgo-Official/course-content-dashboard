@@ -3,6 +3,7 @@ import "./App.css";
 
 import { useState } from "react";
 import { Content, Sidebar, Footer, Header } from "./components/index";
+
 /* import Profile from '../../profile/Profile';
  */
 
