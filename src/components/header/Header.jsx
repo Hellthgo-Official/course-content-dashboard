@@ -24,6 +24,10 @@ import { cilHamburgerMenu } from "@coreui/icons";
 import { useEffect, useState, useLayoutEffect } from "react";
 import connectionConfig from "../../ConfigJson";
 import { Button } from "@coreui/coreui";
+import UAuth, { UserInfo } from '@uauth/js'
+import { Modal } from "../utils";
+
+
 const { keyStores, connect, WalletConnection, ConnectedWalletAccount, utils } =
   nearAPI;
 const myKeyStore = new keyStores.BrowserLocalStorageKeyStore();
@@ -32,11 +36,49 @@ export let accountt;
 
 const Header = ({ openSideBar }) => {
   const [signedIn, setSignedIn] = useState("connect wallet");
+
   const [accountBalance, setAccountBalance] = useState(undefined);
+
+  const [selected, setSelected] = useState(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [nearWallet, setNearWallet] = useState()
+
+
+  const [connected, setConnected] = useState(false)
+
+  const [udUser, setUdUser] = useState()
+  const [uDauth, setUDauth] = useState()
+
+  // function for setting neaer wallet connection to a usestate varialbe 
+  const setNear = async () => {
+    const nearConnection = await connect(connectionConfig);
+    const walletConnection = new WalletConnection(nearConnection);
+    setNearWallet(walletConnection)
+  }
+
+  useEffect(() => {
+    setNear()
+  }, [])
+
+  // function for setting UD authenticator to a usestate varialbe  
+  useEffect(() => {
+    const uDauth = new UAuth({
+      clientID: "772fa165-a309-400e-bb69-4a68a80e8087",
+      redirectUri: `${location.origin}`,
+      scope: "openid wallet email profile:optional social:optional"
+    })
+    setUDauth(uDauth)
+  }, [])
+
+  useEffect(() => {
+    setSignedIn(udUser?.sub || "Connect Wallet")
+  }, [connected])
+
 
   useEffect(() => {
     const signedUser = async () => {
       const nearConnection = await connect(connectionConfig);
+
       const walletConnection = new WalletConnection(nearConnection);
       setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
       console.log(walletConnection.getAccountId());
@@ -59,11 +101,8 @@ const Header = ({ openSideBar }) => {
     // setSignedIn("Connect wallet");
   }, []);
 
-  const connectWallet = async () => {
-    console.log("new function presed");
-    const nearConnection = await connect(connectionConfig);
-    const walletConnection = new WalletConnection(nearConnection);
 
+  const connectNearWallet = (walletConnection) => {
     walletConnection.requestSignIn(
       "healthgo_admin_dashboard", // contract requesting access
       "Example App", // optional title
@@ -71,6 +110,88 @@ const Header = ({ openSideBar }) => {
       "localhost:3000" // optional redirect URL on failure
     );
   };
+
+
+  const handleConnect = async () => {
+
+    console.log('runnubg')
+    async function check() {
+      if (!connected) {
+        setSelected(null)
+        setIsOpen(true)
+        return
+      } else if (connected) {
+        if (nearWallet?.isSignedIn()) {
+          nearWallet.signOut()
+        }
+        if (udUser != undefined && uDauth != undefined) {
+          await uDauth.logout()
+          location.reload()
+        }
+        setConnected(false)
+        setSelected(null)
+        return
+      }
+
+      setSelected(null)
+      setIsOpen(true)
+    }
+
+    check()
+
+  }
+
+  // login 
+  useEffect(() => {
+    async function login() {
+
+      if (selected == 'UD' && udUser == undefined && uDauth != undefined) {
+        try {
+          await uDauth.loginWithPopup()
+          location.reload()
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      if (selected == 'NEAR' && !nearWallet.isSignedIn()) {
+        try {
+          connectNearWallet(nearWallet)
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    }
+
+    login()
+  }, [selected])
+
+
+  useEffect(() => {
+    if (udUser != undefined || nearWallet?.isSignedIn()) {
+      setConnected(true)
+    } else {
+      setConnected(false)
+    }
+  }, [nearWallet?.isSignedIn(), udUser])
+
+  useEffect(() => {
+    if (uDauth != undefined && udUser == undefined) {
+      try {
+        uDauth.user()
+          .then((user) => {
+            setUdUser(user)
+          })
+          .catch((e) => {
+            console.log(e)
+          })
+      } catch (err) {
+        // console.log(err)
+      }
+    }
+  }, [uDauth])
+
+
 
   return (
     <Navbar
@@ -99,18 +220,9 @@ const Header = ({ openSideBar }) => {
             />
           </div> */}
           <div
-            style={{ maxWidth: "300px", marginTop: "0px" }}
+            style={{ maxWidth: "300px", cursor: "pointer", marginTop: "0px" }}
             className="signout"
-            onClick={async () => {
-              const nearConnection = await connect(connectionConfig);
-              const walletConnection = new WalletConnection(nearConnection);
-              if (walletConnection.isSignedIn()) {
-                walletConnection.signOut();
-                setSignedIn("Connect Wallet");
-              } else if (!walletConnection.isSignedIn()) {
-                connectWallet();
-              }
-            }}
+            onClick={handleConnect}
           >
             <div className="text-primary list" style={{ maxWidth: "300px" }}>
               <TextTruncate
@@ -144,6 +256,8 @@ const Header = ({ openSideBar }) => {
               // maxCalculateTimes={30}
             />
           </Navbar.Text> */}
+          <Modal isOpen={isOpen} setSelected={setSelected} setIsOpen={setIsOpen} />
+
         </Navbar.Collapse>
       </Container>
     </Navbar>
@@ -151,3 +265,6 @@ const Header = ({ openSideBar }) => {
 };
 
 export default Header;
+
+
+
