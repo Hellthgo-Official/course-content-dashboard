@@ -80,7 +80,7 @@ const Header = ({ openSideBar }) => {
       const nearConnection = await connect(connectionConfig);
 
       const walletConnection = new WalletConnection(nearConnection);
-      setSignedIn(walletConnection.getAccountId() || "Conkidkjpwhfiowfwgfu;jgk;pnect Wallet");
+      setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
       console.log(walletConnection.getAccountId());
       const account = await nearConnection.account(
         walletConnection.getAccountId()
