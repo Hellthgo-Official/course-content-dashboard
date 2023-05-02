@@ -10,7 +10,7 @@ import {
   Form,
   Image,
   Row,
-  Toast
+  Toast,
 } from "react-bootstrap";
 import courseUpload from "../../assets/images/course-upload.svg";
 import connectionConfig from "../../ConfigJson";
@@ -18,6 +18,7 @@ import imageSvg from "../../assets/images/image.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import { ImageFill } from "react-bootstrap-icons";
 import CourseSection from "./CourseSection";
+import QuizSection from "./Quiz";
 import { useState, createContext, useEffect } from "react";
 import base_url from "../Baseurl";
 import axios from "axios";
@@ -32,16 +33,20 @@ const {
   WalletConnection,
   ConnectedWalletAccount,
   utils,
-  Contract
+  Contract,
 } = nearAPI;
 
 export const ImgContext = createContext([]);
 
 function SingleUpload() {
   const [sections, setSections] = useState([0]);
+  const [quiz, setQuiz] = useState([0]);
   const alert = useAlert();
   const addItem = () => {
     setSections([...sections, sections]);
+  };
+  const addQuiz = () => {
+    setQuiz([...quiz, quiz]);
   };
 
   const [files, setFiles] = useState();
@@ -68,7 +73,7 @@ function SingleUpload() {
       {
         // name of contract you're connecting to
         viewMethods: ["read_products"], // view methods do not change state but usually return a value
-        changeMethods: ["create_product"] // change methods modify state
+        changeMethods: ["create_product"], // change methods modify state
       }
     );
 
@@ -77,7 +82,7 @@ function SingleUpload() {
       product_uri: productUri,
       amount_per_unit: price,
       product_type: "course",
-      init_available_products: "50000"
+      init_available_products: "50000",
     });
   };
   // signedUser();
@@ -192,25 +197,40 @@ function SingleUpload() {
                   />
                 </Form.Group>
 
-                <div>
-                  <br />
-                  <h4 className="text-primary">Course Image</h4>
-                  <div className="bg-primary p-4 border-default rounded-4 row">
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                      <Form.Label style={{ fontWeight: "bold", width: "100%" }}>
-                        <Alert key={"warning"} variant={"warning"}>
-                          Upload 1 Course Banner Image
-                        </Alert>
-                      </Form.Label>
-                      <div className="bg-white p-3">
-                        <ImageUploader />
-                      </div>
-                    </Form.Group>
+                {sections.map((item, i) => (
+                  <CourseSection />
+                ))}
+                <div className="row">
+                  <div className="col-6 mt-4 d-flex justify-content-between">
+                    <Button
+                      size=""
+                      className="btn btn-default"
+                      onClick={addItem}
+                    >
+                      Add new section
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Beginning of Quiz */}
+                <h4 className="text-primary mt-5">Quiz </h4>
+                {quiz.map((item, i) => (
+                  <QuizSection />
+                ))}
+                <div className="row">
+                  <div className="col-6 mt-4 d-flex justify-content-between">
+                    <Button
+                      size=""
+                      className="btn btn-default"
+                      onClick={addQuiz}
+                    >
+                      Add Quiz
+                    </Button>
                   </div>
                 </div>
 
                 <div className="row">
-                  <div className="col-6 mt-4">
+                  <div className="col-6 mt-4 d-flex justify-content-between">
                     <Button
                       size="lg"
                       className="btn btn-primary border-default "
@@ -226,21 +246,21 @@ function SingleUpload() {
                         ) {
                           alert.error("please fill all fields", {
                             position: "bottom right",
-                            transition: "scale"
+                            transition: "scale",
                           });
                         } else {
                           alert.removeAll();
                           alert.info("Hang on, it'll just be a while", {
                             position: "bottom right",
                             transition: "scale",
-                            timeout: "100000"
+                            timeout: "100000",
                           });
                           const ipfs = await axios
                             .post(`${base_url}/ipfs/upload-course-to-ipfs`, {
                               image1: files,
                               title: title,
                               body: body,
-                              conclusion: summary
+                              conclusion: summary,
                             })
                             .then(async (res) => {
                               const stringed = JSON.stringify(res.data.message);
@@ -249,7 +269,7 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.info("we're almost there, hang on", {
                                 position: "bottom right",
-                                transition: "scale"
+                                transition: "scale",
                               });
                               console.log(res.data.message);
 
@@ -271,7 +291,7 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.error("Something went wrong", {
                                 position: "bottom right",
-                                transition: "scale"
+                                transition: "scale",
                               });
                               console.log("final error" + err);
                             });
