@@ -37,11 +37,20 @@ const {
 export const ImgContext = createContext([]);
 
 function CourseSection(props) {
-  const { index, topic, onTopicChange, content, onContentChange } = props;
+  const {
+    index,
+    topic,
+    onTopicChange,
+    content,
+    onContentChange,
+    onImageChange,
+    image,
+  } = props;
 
   const [sections, setSections] = useState([{ topic: "" }]);
   let nee = useRef("");
   let con = useRef("");
+  let img = useRef("");
 
   // const addItem = () => {
   //   setSections([...sections, { topic: "" }]);
@@ -55,6 +64,10 @@ function CourseSection(props) {
   const handleContentChange = (event) => {
     onContentChange(index, event.target.value);
     // console.log(index);
+  };
+
+  const handleImageChange = (event) => {
+    onImageChange(index, event.target.value);
   };
 
   // const handleTopicChange = (event, index) => {
@@ -82,7 +95,7 @@ function CourseSection(props) {
         </Form.Group>
 
         <Form.Group className="mb-3 col-12" controlId="formBasicEmail">
-          <Form.Label>Topic </Form.Label>
+          <Form.Label>Topic Content </Form.Label>
           <Form.Control
             as="textarea"
             rows={3}
@@ -102,7 +115,11 @@ function CourseSection(props) {
           </Form.Label>
           <Form.Label>Image for Section </Form.Label>
           <div className="bg-white p-3">
-            <ImageUploader />
+            <ImageUploader
+              ref={img}
+              value={image}
+              onChange={handleImageChange}
+            />
           </div>
         </Form.Group>
       </div>
@@ -111,10 +128,11 @@ function CourseSection(props) {
 }
 
 let topics;
+let contentss;
 
 function QuizSection(props) {
-  const db = useIndexedDB('courseData');
-  
+  const db = useIndexedDB("courseData");
+
   const { index, question, onQuestionChange } = props;
   // const { indexc, content, onContentChange } = props;
   // const [sections, setSections] = useState([{ topic: "" }]);
@@ -146,7 +164,7 @@ function QuizSection(props) {
 
   // Add this code to return the updated options array
   const updatedOptions = correctOption
-    ? [...options, `Correct Option: ${correctOption}`]
+    ? [...options, `correctOption: ${correctOption}`]
     : options;
 
   console.log(updatedOptions);
@@ -227,26 +245,27 @@ function QuizSection(props) {
             >
               Option 4
             </Button>
-            <Button size=""  className="btn btn-default" onClick={() => {
-              db.add({
-                questions: question,
-                answers: updatedOptions,
-                topics: topics
-                
-              }).then(res => {
-                console.log("updated sucessfully")
-              }).catch(wrong => {
-                console.log(wrong)
-              })
-            }}>save</Button>
+            <Button
+              size=""
+              className="btn btn-default"
+              onClick={() => {
+                db.add({
+                  questions: question,
+                  answers: updatedOptions,
+                })
+                  .then((res) => {
+                    console.log("updated sucessfully");
+                  })
+                  .catch((wrong) => {
+                    console.log(wrong);
+                  });
+              }}
+            >
+              save
+            </Button>
           </div>
         </Form.Group>
-      {correctOption && (
-        
-
-        <div>Correct Answer: {correctOption}</div>
-
-      )}
+        {correctOption && <div>Correct Answer: {correctOption}</div>}
       </div>
     </div>
   );
@@ -254,9 +273,12 @@ function QuizSection(props) {
 
 function SingleUpload() {
   // const [sections, setSections] = useState([0]);
+  const db = useIndexedDB("courseData");
+  let db_items;
   const [sections, setSections] = useState([{ topic: "" }]);
   const [contents, setContent] = useState([{ content: "" }]);
   const [quiz, setQuiz] = useState([{ question: "" }]);
+  const [image, setImage] = useState([{ image: "" }]);
 
   const alert = useAlert();
   const addItem = () => {
@@ -268,14 +290,15 @@ function SingleUpload() {
     // setOption([...option, option]);
   };
 
-  const [files, setFiles] = useState();
+  const [files, setFiles] = useState([]);
   const [summary, setSummary] = useState();
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
   const [price, setPrice] = useState();
+
   let productUri;
   const [numberOfProducts, setNumberOfProducts] = useState();
-  
+
   // console.log(files);
 
   const handleTopicChange = (index, value) => {
@@ -291,8 +314,10 @@ function SingleUpload() {
       topicss.push(sections[i].topic);
     }
     console.log(topics);
-    topics = topicss
+    topics = topicss;
   };
+
+  //potential error at contents[i].contents should be contents[i].content
 
   const handleContentChange = (index, value) => {
     const newContent = [...contents];
@@ -304,12 +329,25 @@ function SingleUpload() {
       content.push(contents[i].contents);
     }
     console.log(content);
+    contentss = content;
   };
 
   const handleQuestionChange = (index, value) => {
     const newQuestion = [...quiz];
     newQuestion[index].quiz = value;
     setContent(newQuestion);
+    let n = quiz.length - 1;
+    const questions = [];
+    for (let i = 0; i <= n; i++) {
+      questions.push(quiz[i].quiz);
+    }
+    console.log(questions);
+  };
+
+  const handleImageChange = (index, value) => {
+    const newImage = [...image];
+    newImage[index].quiz = value;
+    setImage(newImage);
     let n = quiz.length - 1;
     const questions = [];
     for (let i = 0; i <= n; i++) {
@@ -434,7 +472,7 @@ function SingleUpload() {
                   </Form.Group>
                 </div>
 
-                <Form.Group className="mb-3" controlId="formBasicEmail">
+                {/* <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Course Summary</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -444,9 +482,9 @@ function SingleUpload() {
                       setSummary(e.target.value);
                     }}
                   />
-                </Form.Group>
+                </Form.Group> */}
                 <Form.Group>
-                  <h4 className="text-primary">Course Body</h4>
+                  <h4 className="text-primary">Course Summary</h4>
                   <Form.Control
                     as="textarea"
                     rows={14}
@@ -463,8 +501,10 @@ function SingleUpload() {
                     index={index}
                     onTopicChange={handleTopicChange}
                     onContentChange={handleContentChange}
+                    onImageChange={handleImageChange}
                     topic={item.topic}
                     content={item.content}
+                    image={item.image}
                   />
                 ))}
                 <div className="row">
@@ -489,17 +529,17 @@ function SingleUpload() {
                     question={item.quiz}
                   />
                 ))}
-                  <div className="row">
-                    <div className="col-6 mt-4 d-flex justify-content-between">
-                      <Button
-                        size=""
-                        className="btn btn-default"
-                        onClick={addQuiz}
-                      >
-                        Add Quiz
-                      </Button>
-                    </div>
+                <div className="row">
+                  <div className="col-6 mt-4 d-flex justify-content-between">
+                    <Button
+                      size=""
+                      className="btn btn-default"
+                      onClick={addQuiz}
+                    >
+                      Add Quiz
+                    </Button>
                   </div>
+                </div>
 
                 <div className="row">
                   <div className="col-12 mt-4">
@@ -509,10 +549,27 @@ function SingleUpload() {
                       // disabled
                       onClick={async () => {
                         console.log("pressed");
+                        console.log(files);
+                        const dbItems = await db.getAll().then((e) => {
+                          console.log(e);
+                          db_items = e;
+                        });
+
+                        console.log({
+                          image1: files,
+                          title: title,
+                          body: summary,
+                          quizzes: summary,
+                          sections: {
+                            course_questions: db_items,
+                            course_contents: contentss,
+                            course_topics: topics,
+                          },
+                        });
+
                         if (
                           title === undefined ||
                           files === [] ||
-                          summary === undefined ||
                           body === undefined ||
                           price === undefined
                         ) {
@@ -532,9 +589,15 @@ function SingleUpload() {
                               image1: files,
                               title: title,
                               body: body,
-                              conclusion: summary,
+                              quizzes: summary,
+                              sections: {
+                                course_questions: db_items,
+                                course_contents: contentss,
+                                course_topics: topics,
+                              },
                             })
                             .then(async (res) => {
+                              db.clear();
                               const stringed = JSON.stringify(res.data.message);
                               const responded = res.data.message;
                               productUri = stringed;
@@ -553,13 +616,16 @@ function SingleUpload() {
                                 const response = await signedUser()
                                   .then((final) => {
                                     console.log("hold on");
+                                    db.clear();
                                   })
                                   .catch((error) => {
+                                    db.clear();
                                     console.log("error occured " + error);
                                   });
                               }, 2000);
                             })
                             .catch((err) => {
+                              db.clear();
                               alert.removeAll();
                               alert.error("Something went wrong", {
                                 position: "bottom right",
