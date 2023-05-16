@@ -32,7 +32,8 @@ function ImageUploader({ open }) {
       reader.onload = () => {
         // Do whatever you want with the file contents
         // setFiles((prev) => [...prev, reader.result]);
-        setFiles(reader.result);
+        setFiles([...files, reader.result]);
+        // console.log(files)
         URL.revokeObjectURL(file.preview);
         binaryStr = reader.result;
         // console.log(acceptedFiles);

@@ -17,15 +17,13 @@ import connectionConfig from "../../ConfigJson";
 import imageSvg from "../../assets/images/image.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import { ImageFill } from "react-bootstrap-icons";
-import CourseSection from "./CourseSection";
-import QuizSection from "./Quiz";
-import { useState, createContext, useEffect } from "react";
+import { useState, createContext, useEffect, useRef } from "react";
 import base_url from "../Baseurl";
 import axios from "axios";
 import { useAlert } from "react-alert";
 
 import * as nearAPI from "near-api-js";
-// import { accountt } from "../../components/header/Header";
+import { useIndexedDB } from "react-indexed-db";
 
 const {
   keyStores,
@@ -38,25 +36,325 @@ const {
 
 export const ImgContext = createContext([]);
 
+function CourseSection(props) {
+  const {
+    index,
+    topic,
+    onTopicChange,
+    content,
+    onContentChange,
+    onImageChange,
+    image,
+  } = props;
+
+  const [sections, setSections] = useState([{ topic: "" }]);
+  let nee = useRef("");
+  let con = useRef("");
+  let img = useRef("");
+
+  // const addItem = () => {
+  //   setSections([...sections, { topic: "" }]);
+  // };
+
+  const handleTopicInputChange = (event) => {
+    onTopicChange(index, event.target.value);
+    // console.log(index);
+  };
+
+  const handleContentChange = (event) => {
+    onContentChange(index, event.target.value);
+    // console.log(index);
+  };
+
+  const handleImageChange = (event) => {
+    onImageChange(index, event.target.value);
+  };
+
+  // const handleTopicChange = (event, index) => {
+  //   const newSections = [...sections];
+  //   newSections[index].topic = event.target.value;
+  //   setSections(newSections);
+
+  //   // console.log(sections)
+  // };
+
+  return (
+    <div>
+      <h4 className="text-primary mt-5">Section </h4>
+      <div className="bg-primary p-4 border-default rounded-4 row">
+        <Form.Group className="mb-3 col-8" controlId="formBasicEmail">
+          <Form.Label>Topic </Form.Label>
+          <Form.Control
+            type="text"
+            placeholder=""
+            className="border-default bg-white"
+            ref={nee}
+            value={topic}
+            onChange={handleTopicInputChange}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3 col-12" controlId="formBasicEmail">
+          <Form.Label>Topic Content </Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            placeholder="Topic Content"
+            className="border-default bg-white"
+            ref={con}
+            value={content}
+            onChange={handleContentChange}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label style={{ fontWeight: "bold", width: "100%" }}>
+            <Alert key={"warning"} variant={"warning"}>
+              Upload 1 Image
+            </Alert>
+          </Form.Label>
+          <Form.Label>Image for Section </Form.Label>
+          <div className="bg-white p-3">
+            <ImageUploader
+              ref={img}
+              value={image}
+              onChange={handleImageChange}
+            />
+          </div>
+        </Form.Group>
+      </div>
+    </div>
+  );
+}
+
+let topics;
+let contentss;
+
+function QuizSection(props) {
+  const db = useIndexedDB("courseData");
+
+  const { index, question, onQuestionChange } = props;
+  // const { indexc, content, onContentChange } = props;
+  // const [sections, setSections] = useState([{ topic: "" }]);
+  let que = useRef("");
+  // let con = useRef("");
+
+  const handleQuestionChange = (event) => {
+    onQuestionChange(index, event.target.value);
+    // console.log(index);
+  };
+
+  const handleOpsChange = (event) => {
+    onQuestionChange(index, event.target.value);
+    // console.log(index);
+  };
+
+  const [options, setOptions] = useState([]);
+  const [correctOption, setCorrectOption] = useState("");
+
+  const handleOptionChange = (event, index) => {
+    const newOptions = [...options];
+    newOptions[index] = event.target.value;
+    setOptions(newOptions);
+  };
+
+  const handleCorrectOptionClick = (event, option) => {
+    setCorrectOption(option);
+  };
+
+  // Add this code to return the updated options array
+  const updatedOptions = correctOption
+    ? [...options, `correctOption: ${correctOption}`]
+    : options;
+
+  console.log(updatedOptions);
+
+  return (
+    <div className="mb-5">
+      <div className="bg-primary p-4 border-default rounded-4 row">
+        <Form.Group className="mb-3 col-12" controlId="formBasicEmail">
+          <Form.Label>Question </Form.Label>
+          <Form.Control
+            type="text"
+            placeholder=""
+            className="border-default bg-white"
+            ref={que}
+            value={question}
+            onChange={handleQuestionChange}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3 col-6" controlId="formBasicEmail">
+          <Form.Label>Options </Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Option 1"
+            className="border-default bg-white mb-3"
+            onChange={(event) => handleOptionChange(event, 0)}
+          />
+          <Form.Control
+            type="text"
+            placeholder="Option 2"
+            className="border-default bg-white mb-3"
+            onChange={(event) => handleOptionChange(event, 1)}
+          />
+          <Form.Control
+            type="text"
+            placeholder="Option 3"
+            className="border-default bg-white mb-3"
+            onChange={(event) => handleOptionChange(event, 2)}
+          />
+          <Form.Control
+            type="text"
+            placeholder="Option 4"
+            className="border-default bg-white"
+            onChange={(event) => handleOptionChange(event, 3)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <div className="col-10 mt-4 d-flex justify-content-between">
+            <Form.Text className="text-black">
+              The Correct Answer is :
+            </Form.Text>
+            <Button
+              size=""
+              className="btn btn-default"
+              onClick={(event) => handleCorrectOptionClick(event, options[0])}
+            >
+              Option 1
+            </Button>
+            <Button
+              size=""
+              className="btn btn-default"
+              onClick={(event) => handleCorrectOptionClick(event, options[1])}
+            >
+              Option 2
+            </Button>
+            <Button
+              size=""
+              className="btn btn-default"
+              onClick={(event) => handleCorrectOptionClick(event, options[2])}
+            >
+              Option 3
+            </Button>
+            <Button
+              size=""
+              className="btn btn-default"
+              onClick={(event) => handleCorrectOptionClick(event, options[3])}
+            >
+              Option 4
+            </Button>
+            <Button
+              size=""
+              className="btn btn-default"
+              onClick={() => {
+                db.add({
+                  questions: question,
+                  answers: updatedOptions,
+                })
+                  .then((res) => {
+                    console.log("updated sucessfully");
+                  })
+                  .catch((wrong) => {
+                    console.log(wrong);
+                  });
+              }}
+            >
+              save
+            </Button>
+          </div>
+        </Form.Group>
+        {correctOption && <div>Correct Answer: {correctOption}</div>}
+      </div>
+    </div>
+  );
+}
+
 function SingleUpload() {
-  const [sections, setSections] = useState([0]);
-  const [quiz, setQuiz] = useState([0]);
+  // const [sections, setSections] = useState([0]);
+  const db = useIndexedDB("courseData");
+  let db_items;
+  const [sections, setSections] = useState([{ topic: "" }]);
+  const [contents, setContent] = useState([{ content: "" }]);
+  const [quiz, setQuiz] = useState([{ question: "" }]);
+  const [image, setImage] = useState([{ image: "" }]);
+
   const alert = useAlert();
   const addItem = () => {
     setSections([...sections, sections]);
+    setContent([...contents, contents]);
   };
   const addQuiz = () => {
     setQuiz([...quiz, quiz]);
+    // setOption([...option, option]);
   };
 
-  const [files, setFiles] = useState();
+  const [files, setFiles] = useState([]);
   const [summary, setSummary] = useState();
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
   const [price, setPrice] = useState();
+
   let productUri;
   const [numberOfProducts, setNumberOfProducts] = useState();
+
   // console.log(files);
+
+  const handleTopicChange = (index, value) => {
+    const newSections = [...sections];
+    newSections[index].topic = value;
+    setSections(newSections);
+    // console.log(sections.length)
+    // console.log(sections[sections.length - 1]);
+    // console.log(sections[sections.length-1][sections.length-2])
+    let n = sections.length - 1;
+    const topicss = [];
+    for (let i = 0; i <= n; i++) {
+      topicss.push(sections[i].topic);
+    }
+    console.log(topics);
+    topics = topicss;
+  };
+
+  //potential error at contents[i].contents should be contents[i].content
+
+  const handleContentChange = (index, value) => {
+    const newContent = [...contents];
+    newContent[index].contents = value;
+    setContent(newContent);
+    let n = contents.length - 1;
+    const content = [];
+    for (let i = 0; i <= n; i++) {
+      content.push(contents[i].contents);
+    }
+    console.log(content);
+    contentss = content;
+  };
+
+  const handleQuestionChange = (index, value) => {
+    const newQuestion = [...quiz];
+    newQuestion[index].quiz = value;
+    setContent(newQuestion);
+    let n = quiz.length - 1;
+    const questions = [];
+    for (let i = 0; i <= n; i++) {
+      questions.push(quiz[i].quiz);
+    }
+    console.log(questions);
+  };
+
+  const handleImageChange = (index, value) => {
+    const newImage = [...image];
+    newImage[index].quiz = value;
+    setImage(newImage);
+    let n = quiz.length - 1;
+    const questions = [];
+    for (let i = 0; i <= n; i++) {
+      questions.push(quiz[i].quiz);
+    }
+    console.log(questions);
+  };
 
   const signedUser = async () => {
     const nearConnection = await connect(connectionConfig);
@@ -174,7 +472,7 @@ function SingleUpload() {
                   </Form.Group>
                 </div>
 
-                <Form.Group className="mb-3" controlId="formBasicEmail">
+                {/* <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Course Summary</Form.Label>
                   <Form.Control
                     as="textarea"
@@ -184,9 +482,9 @@ function SingleUpload() {
                       setSummary(e.target.value);
                     }}
                   />
-                </Form.Group>
+                </Form.Group> */}
                 <Form.Group>
-                  <h4 className="text-primary">Course Body</h4>
+                  <h4 className="text-primary">Course Summary</h4>
                   <Form.Control
                     as="textarea"
                     rows={14}
@@ -197,8 +495,17 @@ function SingleUpload() {
                   />
                 </Form.Group>
 
-                {sections.map((item, i) => (
-                  <CourseSection />
+                {sections.map((item, index) => (
+                  <CourseSection
+                    key={index}
+                    index={index}
+                    onTopicChange={handleTopicChange}
+                    onContentChange={handleContentChange}
+                    onImageChange={handleImageChange}
+                    topic={item.topic}
+                    content={item.content}
+                    image={item.image}
+                  />
                 ))}
                 <div className="row">
                   <div className="col-6 mt-4 d-flex justify-content-between">
@@ -213,9 +520,14 @@ function SingleUpload() {
                 </div>
 
                 {/* Beginning of Quiz */}
-                <h4 className="text-primary mt-5">Quiz </h4>
-                {quiz.map((item, i) => (
-                  <QuizSection />
+                <h4 className="text-primary mt-5"> Quiz </h4>
+                {quiz.map((item, index) => (
+                  <QuizSection
+                    key={index}
+                    index={index}
+                    onQuestionChange={handleQuestionChange}
+                    question={item.quiz}
+                  />
                 ))}
                 <div className="row">
                   <div className="col-6 mt-4 d-flex justify-content-between">
@@ -230,17 +542,34 @@ function SingleUpload() {
                 </div>
 
                 <div className="row">
-                  <div className="col-6 mt-4 d-flex justify-content-between">
+                  <div className="col-12 mt-4">
                     <Button
                       size="lg"
                       className="btn btn-primary border-default "
                       // disabled
                       onClick={async () => {
                         console.log("pressed");
+                        console.log(files);
+                        const dbItems = await db.getAll().then((e) => {
+                          console.log(e);
+                          db_items = e;
+                        });
+
+                        console.log({
+                          image1: files,
+                          title: title,
+                          body: summary,
+                          quizzes: summary,
+                          sections: {
+                            course_questions: db_items,
+                            course_contents: contentss,
+                            course_topics: topics,
+                          },
+                        });
+
                         if (
                           title === undefined ||
                           files === [] ||
-                          summary === undefined ||
                           body === undefined ||
                           price === undefined
                         ) {
@@ -260,9 +589,15 @@ function SingleUpload() {
                               image1: files,
                               title: title,
                               body: body,
-                              conclusion: summary,
+                              quizzes: summary,
+                              sections: {
+                                course_questions: db_items,
+                                course_contents: contentss,
+                                course_topics: topics,
+                              },
                             })
                             .then(async (res) => {
+                              db.clear();
                               const stringed = JSON.stringify(res.data.message);
                               const responded = res.data.message;
                               productUri = stringed;
@@ -281,13 +616,16 @@ function SingleUpload() {
                                 const response = await signedUser()
                                   .then((final) => {
                                     console.log("hold on");
+                                    db.clear();
                                   })
                                   .catch((error) => {
+                                    db.clear();
                                     console.log("error occured " + error);
                                   });
                               }, 2000);
                             })
                             .catch((err) => {
+                              db.clear();
                               alert.removeAll();
                               alert.error("Something went wrong", {
                                 position: "bottom right",

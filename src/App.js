@@ -3,9 +3,13 @@ import "./App.css";
 
 import { useState } from "react";
 import { Content, Sidebar, Footer, Header } from "./components/index";
+import { initDB } from "react-indexed-db";
+import { DBConfig } from "./DBConfig";
 
 /* import Profile from '../../profile/Profile';
  */
+
+initDB(DBConfig)
 
 const App = () => {
   const [sideBar, setSideBar] = useState(true);
