@@ -10,7 +10,7 @@ import {
   Form,
   Image,
   Row,
-  Toast,
+  Toast
 } from "react-bootstrap";
 import courseUpload from "../../assets/images/course-upload.svg";
 import connectionConfig from "../../ConfigJson";
@@ -31,7 +31,7 @@ const {
   WalletConnection,
   ConnectedWalletAccount,
   utils,
-  Contract,
+  Contract
 } = nearAPI;
 
 export const ImgContext = createContext([]);
@@ -44,7 +44,7 @@ function CourseSection(props) {
     content,
     onContentChange,
     onImageChange,
-    image,
+    image
   } = props;
 
   const [sections, setSections] = useState([{ topic: "" }]);
@@ -251,7 +251,7 @@ function QuizSection(props) {
               onClick={() => {
                 db.add({
                   questions: question,
-                  answers: updatedOptions,
+                  answers: updatedOptions
                 })
                   .then((res) => {
                     console.log("updated sucessfully");
@@ -371,7 +371,7 @@ function SingleUpload() {
       {
         // name of contract you're connecting to
         viewMethods: ["read_products"], // view methods do not change state but usually return a value
-        changeMethods: ["create_product"], // change methods modify state
+        changeMethods: ["create_product"] // change methods modify state
       }
     );
 
@@ -380,7 +380,7 @@ function SingleUpload() {
       product_uri: productUri,
       amount_per_unit: price,
       product_type: "course",
-      init_available_products: "50000",
+      init_available_products: "50000"
     });
   };
   // signedUser();
@@ -563,8 +563,8 @@ function SingleUpload() {
                           sections: {
                             course_questions: db_items,
                             course_contents: contentss,
-                            course_topics: topics,
-                          },
+                            course_topics: topics
+                          }
                         });
 
                         if (
@@ -575,14 +575,14 @@ function SingleUpload() {
                         ) {
                           alert.error("please fill all fields", {
                             position: "bottom right",
-                            transition: "scale",
+                            transition: "scale"
                           });
                         } else {
                           alert.removeAll();
                           alert.info("Hang on, it'll just be a while", {
                             position: "bottom right",
                             transition: "scale",
-                            timeout: "100000",
+                            timeout: "100000"
                           });
                           const ipfs = await axios
                             .post(`${base_url}/ipfs/upload-course-to-ipfs`, {
@@ -593,8 +593,8 @@ function SingleUpload() {
                               sections: {
                                 course_questions: db_items,
                                 course_contents: contentss,
-                                course_topics: topics,
-                              },
+                                course_topics: topics
+                              }
                             })
                             .then(async (res) => {
                               db.clear();
@@ -604,7 +604,7 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.info("we're almost there, hang on", {
                                 position: "bottom right",
-                                transition: "scale",
+                                transition: "scale"
                               });
                               console.log(res.data.message);
 
@@ -629,7 +629,7 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.error("Something went wrong", {
                                 position: "bottom right",
-                                transition: "scale",
+                                transition: "scale"
                               });
                               console.log("final error" + err);
                             });
