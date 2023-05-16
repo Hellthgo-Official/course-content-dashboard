@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form, Alert, } from "react-bootstrap";
+import { Button, Form, Alert } from "react-bootstrap";
 import ImageUploader from "../../components/ImageUploader";
 
 function CourseSection() {
