@@ -167,7 +167,10 @@ function QuizSection(props) {
     ? [...options, `correctOption: ${correctOption}`]
     : options;
 
-  console.log(updatedOptions);
+  // console.log(updatedOptions);
+
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [buttonColor, setButtonColor] = useState("primary");
 
   return (
     <div className="mb-5">
@@ -247,17 +250,24 @@ function QuizSection(props) {
             </Button>
             <Button
               size=""
-              className="btn btn-default"
+              className={`btn btn-${buttonColor} border`}
+              disabled={isButtonDisabled}
               onClick={() => {
+                setIsButtonDisabled(true);
+                setButtonColor("secondary");
+                alert.error("Qusetion Saved", {
+                  position: "bottom right",
+                  transition: "scale",
+                });
                 db.add({
                   questions: question,
                   answers: updatedOptions
                 })
                   .then((res) => {
-                    console.log("updated sucessfully");
+                    // console.log("updated sucessfully");
                   })
                   .catch((wrong) => {
-                    console.log(wrong);
+                    // console.log(wrong);
                   });
               }}
             >
@@ -313,7 +323,7 @@ function SingleUpload() {
     for (let i = 0; i <= n; i++) {
       topicss.push(sections[i].topic);
     }
-    console.log(topics);
+    // console.log(topics);
     topics = topicss;
   };
 
@@ -328,7 +338,7 @@ function SingleUpload() {
     for (let i = 0; i <= n; i++) {
       content.push(contents[i].contents);
     }
-    console.log(content);
+    // console.log(content);
     contentss = content;
   };
 
@@ -341,7 +351,7 @@ function SingleUpload() {
     for (let i = 0; i <= n; i++) {
       questions.push(quiz[i].quiz);
     }
-    console.log(questions);
+    // console.log(questions);
   };
 
   const handleImageChange = (index, value) => {
@@ -360,7 +370,7 @@ function SingleUpload() {
     const nearConnection = await connect(connectionConfig);
     const walletConnection = new WalletConnection(nearConnection);
     // setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
-    console.log(walletConnection.getAccountId());
+    // console.log(walletConnection.getAccountId());
     const account = await nearConnection.account(
       walletConnection.getAccountId()
     );
@@ -466,7 +476,7 @@ function SingleUpload() {
                       className="border-default bg-primary"
                       onChange={(e) => {
                         setPrice(utils.format.parseNearAmount(e.target.value));
-                        console.log(price);
+                        // console.log(price);
                       }}
                     />
                   </Form.Group>
@@ -548,24 +558,24 @@ function SingleUpload() {
                       className="btn btn-primary border-default "
                       // disabled
                       onClick={async () => {
-                        console.log("pressed");
-                        console.log(files);
+                        // console.log("pressed");
+                        // console.log(files);
                         const dbItems = await db.getAll().then((e) => {
-                          console.log(e);
+                          // console.log(e);
                           db_items = e;
                         });
 
-                        console.log({
-                          image1: files,
-                          title: title,
-                          body: summary,
-                          quizzes: summary,
-                          sections: {
-                            course_questions: db_items,
-                            course_contents: contentss,
-                            course_topics: topics
-                          }
-                        });
+                        // console.log({
+                        //   image1: files,
+                        //   title: title,
+                        //   body: summary,
+                        //   quizzes: summary,
+                        //   sections: {
+                        //     course_questions: db_items,
+                        //     course_contents: contentss,
+                        //     course_topics: topics,
+                        //   },
+                        // });
 
                         if (
                           title === undefined ||
@@ -606,21 +616,21 @@ function SingleUpload() {
                                 position: "bottom right",
                                 transition: "scale"
                               });
-                              console.log(res.data.message);
+                              // console.log(res.data.message);
 
-                              console.log(stringed);
-                              console.log(productUri);
+                              // console.log(stringed);
+                              // console.log(productUri);
 
-                              console.log("functioning");
+                              // console.log("functioning");
                               setTimeout(async () => {
                                 const response = await signedUser()
                                   .then((final) => {
-                                    console.log("hold on");
+                                    // console.log("hold on");
                                     db.clear();
                                   })
                                   .catch((error) => {
                                     db.clear();
-                                    console.log("error occured " + error);
+                                    // console.log("error occured " + error);
                                   });
                               }, 2000);
                             })
@@ -631,7 +641,7 @@ function SingleUpload() {
                                 position: "bottom right",
                                 transition: "scale"
                               });
-                              console.log("final error" + err);
+                              // console.log("final error" + err);
                             });
                         }
                       }}
