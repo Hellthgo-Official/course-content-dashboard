@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext, useContext } from "react";
 import * as nearAPI from "near-api-js";
 import { NavLink } from "react-router-dom";
 import TextTruncate from "react-text-truncate";
@@ -24,6 +24,7 @@ import { cilHamburgerMenu } from "@coreui/icons";
 import { useEffect, useState, useLayoutEffect } from "react";
 import connectionConfig from "../../ConfigJson";
 import { Button } from "@coreui/coreui";
+
 const { keyStores, connect, WalletConnection, ConnectedWalletAccount, utils } =
   nearAPI;
 const myKeyStore = new keyStores.BrowserLocalStorageKeyStore();
@@ -40,6 +41,11 @@ const Header = ({ openSideBar }) => {
       const walletConnection = new WalletConnection(nearConnection);
       setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
       console.log(walletConnection.getAccountId());
+      walletConnection.isSignedIn() &&
+        localStorage.setItem(
+          "account_id",
+          `${walletConnection.getAccountId()}`
+        );
       const account = await nearConnection.account(
         walletConnection.getAccountId()
       );
@@ -66,7 +72,7 @@ const Header = ({ openSideBar }) => {
 
     walletConnection.requestSignIn(
       "healthgo_admin_dashboard", // contract requesting access
-      "Example App", // optional title
+      "HealthGo Dashboard", // optional title
       "https://google.com", // optional redirect URL on success
       "localhost:3000" // optional redirect URL on failure
     );
@@ -105,6 +111,7 @@ const Header = ({ openSideBar }) => {
               const nearConnection = await connect(connectionConfig);
               const walletConnection = new WalletConnection(nearConnection);
               if (walletConnection.isSignedIn()) {
+                localStorage.removeItem("account_id");
                 walletConnection.signOut();
                 setSignedIn("Connect Wallet");
               } else if (!walletConnection.isSignedIn()) {
