@@ -10,7 +10,7 @@ import {
   Form,
   Image,
   Row,
-  Toast
+  Toast,
 } from "react-bootstrap";
 import courseUpload from "../../assets/images/course-upload.svg";
 import connectionConfig from "../../ConfigJson";
@@ -32,7 +32,7 @@ const {
   WalletConnection,
   ConnectedWalletAccount,
   utils,
-  Contract
+  Contract,
 } = nearAPI;
 
 export const ImgContext = createContext([]);
@@ -45,7 +45,7 @@ function CourseSection(props) {
     content,
     onContentChange,
     onImageChange,
-    image
+    image,
   } = props;
 
   const [sections, setSections] = useState([{ topic: "" }]);
@@ -168,8 +168,11 @@ function QuizSection(props) {
     ? [...options, `correctOption: ${correctOption}`]
     : options;
 
-  console.log(updatedOptions);
+  // console.log(updatedOptions);
 
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [buttonColor, setButtonColor] = useState("primary");
+  const alert = useAlert();
   return (
     <div className="mb-5">
       <div className="bg-primary p-4 border-default rounded-4 row">
@@ -248,18 +251,37 @@ function QuizSection(props) {
             </Button>
             <Button
               size=""
-              className="btn btn-default"
+              className={`btn btn-${buttonColor} border`}
+              disabled={isButtonDisabled}
               onClick={() => {
-                db.add({
-                  questions: question,
-                  answers: updatedOptions
-                })
-                  .then((res) => {
-                    console.log("updated sucessfully");
-                  })
-                  .catch((wrong) => {
-                    console.log(wrong);
+                if (
+                  question === "" ||
+                  options === "" ||
+                  correctOption === ""
+                ) {
+                  alert.error("Please fill all field and Choose correct answer", {
+                    position: "bottom right",
+                    transition: "scale",
                   });
+                } else {
+                  alert.error("Question Saved", {
+                    position: "bottom right",
+                    transition: "scale",
+                  });
+                  setIsButtonDisabled(true);
+                  setButtonColor("secondary");
+                  
+                  db.add({
+                    questions: question,
+                    answers: updatedOptions,
+                  })
+                    .then((res) => {
+                      // console.log("updated sucessfully");
+                    })
+                    .catch((wrong) => {
+                      // console.log(wrong);
+                    });
+                }
               }}
             >
               save
@@ -324,7 +346,7 @@ function SingleUpload() {
     for (let i = 0; i <= n; i++) {
       topicss.push(sections[i].topic);
     }
-    console.log(topics);
+    // console.log(topics);
     topics = topicss;
   };
 
@@ -339,7 +361,7 @@ function SingleUpload() {
     for (let i = 0; i <= n; i++) {
       content.push(contents[i].contents);
     }
-    console.log(content);
+    // console.log(content);
     contentss = content;
   };
 
@@ -352,7 +374,7 @@ function SingleUpload() {
     for (let i = 0; i <= n; i++) {
       questions.push(quiz[i].quiz);
     }
-    console.log(questions);
+    // console.log(questions);
   };
 
   const handleImageChange = (index, value) => {
@@ -372,7 +394,7 @@ function SingleUpload() {
 
     const walletConnection = new WalletConnection(nearConnection);
     // setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
-    console.log(walletConnection.getAccountId());
+    // console.log(walletConnection.getAccountId());
     const account = await nearConnection.account(
       walletConnection.getAccountId()
     );
@@ -383,7 +405,7 @@ function SingleUpload() {
       {
         // name of contract you're connecting to
         viewMethods: ["read_products"], // view methods do not change state but usually return a value
-        changeMethods: ["create_product"] // change methods modify state
+        changeMethods: ["create_product"], // change methods modify state
       }
     );
 
@@ -392,7 +414,7 @@ function SingleUpload() {
       product_uri: productUri,
       amount_per_unit: price,
       product_type: "course",
-      init_available_products: "50000"
+      init_available_products: "50000",
     });
   };
   // signedUser();
@@ -478,7 +500,7 @@ function SingleUpload() {
                       className="border-default bg-primary"
                       onChange={(e) => {
                         setPrice(utils.format.parseNearAmount(e.target.value));
-                        console.log(price);
+                        // console.log(price);
                       }}
                     />
                   </Form.Group>
@@ -561,10 +583,10 @@ function SingleUpload() {
                       className="btn btn-primary border-default "
                       // disabled
                       onClick={async () => {
-                        console.log("pressed");
-                        console.log(files);
+                        // console.log("pressed");
+                        // console.log(files);
                         const dbItems = await db.getAll().then((e) => {
-                          console.log(e);
+                          // console.log(e);
                           db_items = e;
                         });
 
@@ -576,9 +598,9 @@ function SingleUpload() {
                           sections: {
                             course_questions: db_items,
                             course_contents: contentss,
-                            course_topics: topics
+                            course_topics: topics,
                           },
-                          author: localStorage.getItem("account_id")
+                          author: localStorage.getItem("account_id"),
                         });
 
                         if (
@@ -589,14 +611,14 @@ function SingleUpload() {
                         ) {
                           alert.error("please fill all fields", {
                             position: "bottom right",
-                            transition: "scale"
+                            transition: "scale",
                           });
                         } else {
                           alert.removeAll();
                           alert.info("Hang on, it'll just be a while", {
                             position: "bottom right",
                             transition: "scale",
-                            timeout: "100000"
+                            timeout: "100000",
                           });
                           const ipfs = await axios
                             .post(`${base_url}/ipfs/upload-course-to-ipfs`, {
@@ -607,9 +629,9 @@ function SingleUpload() {
                               sections: {
                                 course_questions: db_items,
                                 course_contents: contentss,
-                                course_topics: topics
+                                course_topics: topics,
                               },
-                              author: localStorage.getItem("account_id")
+                              author: localStorage.getItem("account_id"),
                             })
                             .then(async (res) => {
                               db.clear();
@@ -619,24 +641,24 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.info("we're almost there, hang on", {
                                 position: "bottom right",
-                                transition: "scale"
+                                transition: "scale",
                               });
-                              console.log(res.data.message);
+                              // console.log(res.data.message);
 
-                              console.log(stringed);
-                              console.log(productUri);
+                              // console.log(stringed);
+                              // console.log(productUri);
 
-                              console.log("functioning");
+                              // console.log("functioning");
                               setTimeout(async () => {
-                                // const response = await signedUser()
-                                //   .then((final) => {
-                                //     console.log("hold on");
-                                //     db.clear();
-                                //   })
-                                //   .catch((error) => {
-                                //     db.clear();
-                                //     console.log("error occured " + error);
-                                //   });
+                                const response = await signedUser()
+                                  .then((final) => {
+                                    console.log("hold on");
+                                    db.clear();
+                                  })
+                                  .catch((error) => {
+                                    db.clear();
+                                    console.log("error occured " + error);
+                                  });
                               }, 2000);
                             })
                             .catch((err) => {
@@ -644,9 +666,9 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.error("Something went wrong", {
                                 position: "bottom right",
-                                transition: "scale"
+                                transition: "scale",
                               });
-                              console.log("final error" + err);
+                              // console.log("final error" + err);
                             });
                         }
                       }}
