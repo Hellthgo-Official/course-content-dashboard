@@ -18,6 +18,7 @@ import imageSvg from "../../assets/images/image.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import { ImageFill } from "react-bootstrap-icons";
 import { useState, createContext, useRef, useContext, useEffect } from "react";
+import { CloudUploadFill } from "react-bootstrap-icons";
 
 import base_url from "../Baseurl";
 import axios from "axios";
@@ -25,6 +26,7 @@ import { useAlert } from "react-alert";
 
 import * as nearAPI from "near-api-js";
 import { useIndexedDB } from "react-indexed-db";
+import Nav from "../../components/Nav";
 
 const {
   keyStores,
@@ -217,76 +219,94 @@ function QuizSection(props) {
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <div className="col-10 mt-4 d-flex justify-content-between">
-            <Form.Text className="text-black">
+          <Row className="mt-4 ">
+            <Form.Text className="text-black mb-3">
               The Correct Answer is :
             </Form.Text>
-            <Button
-              size=""
-              className="btn btn-default"
-              onClick={(event) => handleCorrectOptionClick(event, options[0])}
-            >
-              Option 1
-            </Button>
-            <Button
-              size=""
-              className="btn btn-default"
-              onClick={(event) => handleCorrectOptionClick(event, options[1])}
-            >
-              Option 2
-            </Button>
-            <Button
-              size=""
-              className="btn btn-default"
-              onClick={(event) => handleCorrectOptionClick(event, options[2])}
-            >
-              Option 3
-            </Button>
-            <Button
-              size=""
-              className="btn btn-default"
-              onClick={(event) => handleCorrectOptionClick(event, options[3])}
-            >
-              Option 4
-            </Button>
-            <Button
-              size=""
-              className={`btn btn-${buttonColor} border`}
-              disabled={isButtonDisabled}
-              onClick={() => {
-                if (
-                  question === "" ||
-                  options === "" ||
-                  correctOption === ""
-                ) {
-                  alert.error("Please fill all field and Choose correct answer", {
-                    position: "bottom right",
-                    transition: "scale",
-                  });
-                } else {
-                  alert.error("Question Saved", {
-                    position: "bottom right",
-                    transition: "scale",
-                  });
-                  setIsButtonDisabled(true);
-                  setButtonColor("secondary");
-                  
-                  db.add({
-                    questions: question,
-                    answers: updatedOptions,
-                  })
-                    .then((res) => {
-                      // console.log("updated sucessfully");
-                    })
-                    .catch((wrong) => {
-                      // console.log(wrong);
+            <Col sm={6} xs={6}>
+              <Button
+                size=""
+                className="btn btn-default mb-3"
+                style={{width:"100%"}}
+                onClick={(event) => handleCorrectOptionClick(event, options[0])}
+              >
+                Option 1
+              </Button>
+            </Col>
+            <Col sm={6} xs={6}>
+              <Button
+                size=""
+                className="btn btn-default mb-3"
+                style={{width:"100%"}}
+                onClick={(event) => handleCorrectOptionClick(event, options[1])}
+              >
+                Option 2
+              </Button>
+            </Col>
+            <Col sm={6} xs={6}>
+              <Button
+                size=""
+                className="btn btn-default mb-3"
+                style={{width:"100%"}}
+                onClick={(event) => handleCorrectOptionClick(event, options[2])}
+              >
+                Option 3
+              </Button>
+            </Col>
+            <Col sm={6} xs={6}>
+              <Button
+                size=""
+                className="btn btn-default mb-3"
+                style={{width:"100%"}}
+                onClick={(event) => handleCorrectOptionClick(event, options[3])}
+              >
+                Option 4
+              </Button>
+            </Col>
+            <Col sm={12} xs={12}>
+              <Button
+                size=""
+                style={{width:"100%"}}
+                className={`btn btn-${buttonColor} border`}
+                disabled={isButtonDisabled}
+                onClick={() => {
+                  if (
+                    question === "" ||
+                    options === "" ||
+                    correctOption === ""
+                  ) {
+                    alert.error(
+                      "Please fill all field and Choose correct answer",
+                      {
+                        position: "bottom right",
+                        transition: "scale",
+                      }
+                    );
+                  } else {
+                    alert.error("Question Saved", {
+                      position: "bottom right",
+                      transition: "scale",
                     });
-                }
-              }}
-            >
-              save
-            </Button>
-          </div>
+                    setIsButtonDisabled(true);
+                    setButtonColor("secondary");
+
+                    db.add({
+                      questions: question,
+                      answers: updatedOptions,
+                    })
+                      .then((res) => {
+                        // console.log("updated sucessfully");
+                      })
+                      .catch((wrong) => {
+                        // console.log(wrong);
+                      });
+                  }
+                }}
+              >
+                save
+              </Button>
+            </Col>
+          </Row>
         </Form.Group>
         {correctOption && <div>Correct Answer: {correctOption}</div>}
       </div>
@@ -440,15 +460,17 @@ function SingleUpload() {
 
   return (
     <ImgContext.Provider value={{ files, setFiles }}>
+      <div
+        className="text-default text-primary text-start my-5"
+        style={{ height: "20px" }}
+      />
+      <Nav />
       <Container className="">
         <div className="text-primary my-5 d-flex ">
-          <Image
-            width={50}
-            src={courseUpload}
-            className=""
-            style={{ margin: "0 20px 10px 0" }}
-          />
-          <h3 className="text-primary">Course Upload</h3>
+          <CloudUploadFill size={50} />
+          <h3 className="text-primary" style={{ marginLeft: "10px" }}>
+            Course Upload
+          </h3>
         </div>
         <div>
           <Card className="no-border">

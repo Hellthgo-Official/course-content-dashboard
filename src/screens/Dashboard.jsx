@@ -1,6 +1,7 @@
 import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 import ProductUpload from '../assets/images/product-upload.svg';
 import CourseUpload from '../assets/images/course-upload.svg';
+import { Link } from 'react-router-dom';
 import {
   CartPlus,
   ClockHistory,
@@ -20,11 +21,13 @@ function Dashboard() {
           <Card className="bg-default rounded-3 text-lg-start border-1 mb-5 bg-primary border-default">
             <Card.Body>
               <Card.Title className="text-primary">
+              <Link className="link nav-item" to="/product-upload">
                 <CartPlus size={30} />
 
                 <span style={{ margin: '0px 0px 0px 20px' }}>
                   Product Upload
                 </span>
+                </Link>
               </Card.Title>
 
               <Card.Text>
@@ -38,13 +41,14 @@ function Dashboard() {
           <Card className="bg-default rounded-3 text-lg-start border-1 mb-5 bg-primary border-default">
             <Card.Body>
               <Card.Title className="text-primary">
+              <Link className="link nav-item" to="/upload/course">
                 <CloudUploadFill size={30} />
 
                 <span style={{ margin: '0px 0px 0px 20px' }}>
                   Course Upload
                 </span>
+                </Link>
               </Card.Title>
-
               <Card.Text>
                 Upload a new product to the store for users to see and buy on
                 the HealthGO app.

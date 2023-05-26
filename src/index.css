@@ -32,6 +32,12 @@ main {
 .link {
   text-decoration: none;
   color: #07a53d !important;
+  display: inline-flex;
+  align-items: center;
+}
+
+.link p{
+  margin-top: 10px;
 }
 
 .heroDisplay {
@@ -135,4 +141,24 @@ main {
   border-radius: 10px;
   padding: 10px;
   margin-right: 100px;
+}
+
+@media screen and (min-width: 900px) {
+  .dash-res {
+    display: none;
+  }
+ 
+}
+
+@media screen and (max-width: 900px) {
+  .link p{
+   display: none !important;
+  }
+  .sideBar{
+    display: none;
+  }
+  
+  .hamburger{
+    display: none;
+  }
 }

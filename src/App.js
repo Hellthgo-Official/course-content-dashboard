@@ -12,7 +12,7 @@ import { DBConfig } from "./DBConfig";
 initDB(DBConfig)
 
 const App = () => {
-  const [sideBar, setSideBar] = useState(true);
+  const [sideBar, setSideBar] = useState(false);
 
   function toggleSideBar() {
     if (sideBar == true) {

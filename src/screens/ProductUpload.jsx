@@ -5,8 +5,9 @@ import {
   Container,
   Form,
   Image,
-  Row
+  Row,
 } from "react-bootstrap";
+
 import Alert from "react-bootstrap/Alert";
 // import { useAlert } from "react-alert";
 import productUpload from "../assets/images/product-upload.svg";
@@ -28,10 +29,12 @@ const {
   WalletConnection,
   ConnectedWalletAccount,
   utils,
-  Contract
+  Contract,
 } = nearAPI;
 
 import axios from "axios";
+
+import Nav from "../components/Nav";
 
 export const ImageContext = createContext([]);
 function ProductUpload() {
@@ -78,7 +81,7 @@ function ProductUpload() {
       {
         // name of contract you're connecting to
         viewMethods: ["read_products"], // view methods do not change state but usually return a value
-        changeMethods: ["create_product"] // change methods modify state
+        changeMethods: ["create_product"], // change methods modify state
       }
     );
 
@@ -87,13 +90,16 @@ function ProductUpload() {
       product_uri: productUri,
       amount_per_unit: price,
       product_type: "product",
-      init_available_products: productAmount
+      init_available_products: productAmount,
     });
   };
 
   return (
     <ImageContext.Provider value={{ files, setFiles }}>
       <Container className="">
+        
+          <div className="text-default text-primary text-start my-5" style={{height:"20px"}} />
+       <Nav />
         <div className="text-primary my-5 d-flex ">
           <Image
             width={50}
@@ -201,21 +207,21 @@ function ProductUpload() {
                       ) {
                         alert.error("please fill all fields", {
                           position: "bottom right",
-                          transition: "scale"
+                          transition: "scale",
                         });
                       } else {
                         alert.removeAll();
                         alert.info("Hang on, it'll just be a while", {
                           position: "bottom right",
                           transition: "scale",
-                          timeout: "100000"
+                          timeout: "100000",
                         });
                         const ipfs = await axios
                           .post(`${base_url}/ipfs/upload-product-to-ipfs`, {
                             image1: image1,
                             image2: image2,
                             image3: image3,
-                            description: productDescription
+                            description: productDescription,
                           })
                           .then(async (res) => {
                             const stringed = JSON.stringify(res.data.message);
@@ -224,7 +230,7 @@ function ProductUpload() {
                             alert.removeAll();
                             alert.info("we're almost there, hang on", {
                               position: "bottom right",
-                              transition: "scale"
+                              transition: "scale",
                             });
                             console.log(res.data.message);
 
@@ -246,7 +252,7 @@ function ProductUpload() {
                             alert.removeAll();
                             alert.error("Something went wrong", {
                               position: "bottom right",
-                              transition: "scale"
+                              transition: "scale",
                             });
                             console.log("final error" + err);
                           });
