@@ -17,7 +17,8 @@ import connectionConfig from "../../ConfigJson";
 import imageSvg from "../../assets/images/image.svg";
 import BootstrapSwitchButton from "bootstrap-switch-button-react";
 import { ImageFill } from "react-bootstrap-icons";
-import { useState, createContext, useEffect, useRef } from "react";
+import { useState, createContext, useRef, useContext, useEffect } from "react";
+
 import base_url from "../Baseurl";
 import axios from "axios";
 import { useAlert } from "react-alert";
@@ -284,11 +285,20 @@ function QuizSection(props) {
 function SingleUpload() {
   // const [sections, setSections] = useState([0]);
   const db = useIndexedDB("courseData");
+  const [authorPlaceholder, setAuthorPlaceholder] = useState(
+    localStorage.getItem("account_id") || "please connect wallet"
+  );
   let db_items;
   const [sections, setSections] = useState([{ topic: "" }]);
   const [contents, setContent] = useState([{ content: "" }]);
   const [quiz, setQuiz] = useState([{ question: "" }]);
   const [image, setImage] = useState([{ image: "" }]);
+
+  useEffect(() => {
+    setAuthorPlaceholder(
+      localStorage.getItem("account_id") || "please connect wallet"
+    );
+  });
 
   const alert = useAlert();
   const addItem = () => {
@@ -302,6 +312,7 @@ function SingleUpload() {
 
   const [files, setFiles] = useState([]);
   const [summary, setSummary] = useState();
+  const [author, setAuthor] = useState();
   const [title, setTitle] = useState();
   const [body, setBody] = useState();
   const [price, setPrice] = useState();
@@ -368,6 +379,7 @@ function SingleUpload() {
 
   const signedUser = async () => {
     const nearConnection = await connect(connectionConfig);
+
     const walletConnection = new WalletConnection(nearConnection);
     // setSignedIn(walletConnection.getAccountId() || "Connect Wallet");
     // console.log(walletConnection.getAccountId());
@@ -482,17 +494,18 @@ function SingleUpload() {
                   </Form.Group>
                 </div>
 
-                {/* <Form.Group className="mb-3" controlId="formBasicEmail">
-                  <Form.Label>Course Summary</Form.Label>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                  <Form.Label>
+                    <h4 className="text-primary">Author Ticker</h4>
+                  </Form.Label>
                   <Form.Control
-                    as="textarea"
-                    rows={3}
+                    type="text"
+                    // rows={3}
+                    placeholder={authorPlaceholder}
                     className="border-default bg-primary"
-                    onChange={(e) => {
-                      setSummary(e.target.value);
-                    }}
+                    disabled
                   />
-                </Form.Group> */}
+                </Form.Group>
                 <Form.Group>
                   <h4 className="text-primary">Course Summary</h4>
                   <Form.Control
@@ -565,17 +578,18 @@ function SingleUpload() {
                           db_items = e;
                         });
 
-                        // console.log({
-                        //   image1: files,
-                        //   title: title,
-                        //   body: summary,
-                        //   quizzes: summary,
-                        //   sections: {
-                        //     course_questions: db_items,
-                        //     course_contents: contentss,
-                        //     course_topics: topics,
-                        //   },
-                        // });
+                        console.log({
+                          image1: files,
+                          title: title,
+                          body: summary,
+                          quizzes: summary,
+                          sections: {
+                            course_questions: db_items,
+                            course_contents: contentss,
+                            course_topics: topics
+                          },
+                          author: localStorage.getItem("account_id")
+                        });
 
                         if (
                           title === undefined ||
@@ -604,7 +618,8 @@ function SingleUpload() {
                                 course_questions: db_items,
                                 course_contents: contentss,
                                 course_topics: topics
-                              }
+                              },
+                              author: localStorage.getItem("account_id")
                             })
                             .then(async (res) => {
                               db.clear();
@@ -625,12 +640,12 @@ function SingleUpload() {
                               setTimeout(async () => {
                                 const response = await signedUser()
                                   .then((final) => {
-                                    // console.log("hold on");
+                                    console.log("hold on");
                                     db.clear();
                                   })
                                   .catch((error) => {
                                     db.clear();
-                                    // console.log("error occured " + error);
+                                    console.log("error occured " + error);
                                   });
                               }, 2000);
                             })
