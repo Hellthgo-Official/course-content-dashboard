@@ -10,7 +10,7 @@ import {
   Form,
   Image,
   Row,
-  Toast
+  Toast,
 } from "react-bootstrap";
 import courseUpload from "../../assets/images/course-upload.svg";
 import connectionConfig from "../../ConfigJson";
@@ -32,7 +32,7 @@ const {
   WalletConnection,
   ConnectedWalletAccount,
   utils,
-  Contract
+  Contract,
 } = nearAPI;
 
 export const ImgContext = createContext([]);
@@ -45,7 +45,7 @@ function CourseSection(props) {
     content,
     onContentChange,
     onImageChange,
-    image
+    image,
   } = props;
 
   const [sections, setSections] = useState([{ topic: "" }]);
@@ -172,7 +172,7 @@ function QuizSection(props) {
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [buttonColor, setButtonColor] = useState("primary");
-
+  const alert = useAlert();
   return (
     <div className="mb-5">
       <div className="bg-primary p-4 border-default rounded-4 row">
@@ -254,22 +254,34 @@ function QuizSection(props) {
               className={`btn btn-${buttonColor} border`}
               disabled={isButtonDisabled}
               onClick={() => {
-                setIsButtonDisabled(true);
-                setButtonColor("secondary");
-                alert.error("Qusetion Saved", {
-                  position: "bottom right",
-                  transition: "scale",
-                });
-                db.add({
-                  questions: question,
-                  answers: updatedOptions
-                })
-                  .then((res) => {
-                    // console.log("updated sucessfully");
-                  })
-                  .catch((wrong) => {
-                    // console.log(wrong);
+                if (
+                  question === "" ||
+                  options === "" ||
+                  correctOption === ""
+                ) {
+                  alert.error("Please fill all field and Choose correct answer", {
+                    position: "bottom right",
+                    transition: "scale",
                   });
+                } else {
+                  alert.error("Question Saved", {
+                    position: "bottom right",
+                    transition: "scale",
+                  });
+                  setIsButtonDisabled(true);
+                  setButtonColor("secondary");
+                  
+                  db.add({
+                    questions: question,
+                    answers: updatedOptions,
+                  })
+                    .then((res) => {
+                      // console.log("updated sucessfully");
+                    })
+                    .catch((wrong) => {
+                      // console.log(wrong);
+                    });
+                }
               }}
             >
               save
@@ -393,7 +405,7 @@ function SingleUpload() {
       {
         // name of contract you're connecting to
         viewMethods: ["read_products"], // view methods do not change state but usually return a value
-        changeMethods: ["create_product"] // change methods modify state
+        changeMethods: ["create_product"], // change methods modify state
       }
     );
 
@@ -402,7 +414,7 @@ function SingleUpload() {
       product_uri: productUri,
       amount_per_unit: price,
       product_type: "course",
-      init_available_products: "50000"
+      init_available_products: "50000",
     });
   };
   // signedUser();
@@ -586,9 +598,9 @@ function SingleUpload() {
                           sections: {
                             course_questions: db_items,
                             course_contents: contentss,
-                            course_topics: topics
+                            course_topics: topics,
                           },
-                          author: localStorage.getItem("account_id")
+                          author: localStorage.getItem("account_id"),
                         });
 
                         if (
@@ -599,14 +611,14 @@ function SingleUpload() {
                         ) {
                           alert.error("please fill all fields", {
                             position: "bottom right",
-                            transition: "scale"
+                            transition: "scale",
                           });
                         } else {
                           alert.removeAll();
                           alert.info("Hang on, it'll just be a while", {
                             position: "bottom right",
                             transition: "scale",
-                            timeout: "100000"
+                            timeout: "100000",
                           });
                           const ipfs = await axios
                             .post(`${base_url}/ipfs/upload-course-to-ipfs`, {
@@ -617,9 +629,9 @@ function SingleUpload() {
                               sections: {
                                 course_questions: db_items,
                                 course_contents: contentss,
-                                course_topics: topics
+                                course_topics: topics,
                               },
-                              author: localStorage.getItem("account_id")
+                              author: localStorage.getItem("account_id"),
                             })
                             .then(async (res) => {
                               db.clear();
@@ -629,7 +641,7 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.info("we're almost there, hang on", {
                                 position: "bottom right",
-                                transition: "scale"
+                                transition: "scale",
                               });
                               // console.log(res.data.message);
 
@@ -654,7 +666,7 @@ function SingleUpload() {
                               alert.removeAll();
                               alert.error("Something went wrong", {
                                 position: "bottom right",
-                                transition: "scale"
+                                transition: "scale",
                               });
                               // console.log("final error" + err);
                             });
