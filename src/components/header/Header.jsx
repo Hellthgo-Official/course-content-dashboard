@@ -85,18 +85,18 @@ const Header = ({ openSideBar }) => {
       style={{ display: "flex", height: "100px" }}
     >
       <Container fluid className="d-flex">
-        <CHeaderToggler className="mr-5" onClick={openSideBar}>
+        <CHeaderToggler className="mr-5 hamburger" onClick={openSideBar}>
           <CIcon icon={cilHamburgerMenu} size="xl" />
         </CHeaderToggler>
 
         <Navbar.Brand>
           <Link to="/" className="link text-primary">
             <Image src={logo} />
-            HealthGo Admin Dashboard
+            <p>HealthGo Admin Dashboard</p>
           </Link>
         </Navbar.Brand>
         <Navbar.Toggle />
-        <Navbar.Collapse className="justify-content-end">
+        <Navbar.Collapse className="justify-content-end" >
           {/* <div className="">
             <Image
               src={avatar}
@@ -105,7 +105,7 @@ const Header = ({ openSideBar }) => {
             />
           </div> */}
           <div
-            style={{ maxWidth: "300px", marginTop: "0px" }}
+            style={{ maxWidth: "200px", marginTop: "0px" }}
             className="signout"
             onClick={async () => {
               const nearConnection = await connect(connectionConfig);
@@ -119,7 +119,7 @@ const Header = ({ openSideBar }) => {
               }
             }}
           >
-            <div className="text-primary list" style={{ maxWidth: "300px" }}>
+            <div className="text-primary list" style={{ maxWidth: "300px", display:"inline-flex" }}>
               <TextTruncate
                 line={1}
                 element="span"
